@@ -2,7 +2,6 @@ import CommonTestModels
 import DateProvider
 import EmceeLogging
 import Foundation
-import LocalHostDeterminer
 import MetricsExtensions
 import QueueModels
 import Runner
@@ -14,6 +13,7 @@ import Tmp
 public final class RunAppleTestsPayloadExecutor {
     private let dateProvider: DateProvider
     private let globalMetricRecorder: GlobalMetricRecorder
+    private let hostname: String
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let runnerProvider: AppleRunnerProvider
     private let simulatorSettingsModifier: SimulatorSettingsModifier
@@ -24,6 +24,7 @@ public final class RunAppleTestsPayloadExecutor {
     public init(
         dateProvider: DateProvider,
         globalMetricRecorder: GlobalMetricRecorder,
+        hostname: String,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         runnerProvider: AppleRunnerProvider,
         simulatorSettingsModifier: SimulatorSettingsModifier,
@@ -33,6 +34,7 @@ public final class RunAppleTestsPayloadExecutor {
     ) {
         self.dateProvider = dateProvider
         self.globalMetricRecorder = globalMetricRecorder
+        self.hostname = hostname
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.runnerProvider = runnerProvider
         self.simulatorSettingsModifier = simulatorSettingsModifier
@@ -76,7 +78,7 @@ public final class RunAppleTestsPayloadExecutor {
                             logs: [],
                             duration: dateProvider.currentDate().timeIntervalSince(startedAt.date),
                             startTime: startedAt,
-                            hostName: LocalHostDeterminer.currentHostAddress,
+                            hostName: hostname,
                             udid: UDID(value: "undefined")
                         )
                     )
@@ -141,7 +143,8 @@ public final class RunAppleTestsPayloadExecutor {
             logger: logger,
             simulatorOperationTimeouts: runAppleTestsPayload.testsConfiguration.simulatorOperationTimeouts,
             version: version,
-            globalMetricRecorder: globalMetricRecorder
+            globalMetricRecorder: globalMetricRecorder,
+            hostname: hostname
         )
         
         return try allocatedSimulator.withAutoreleasingSimulator { simulator -> TestingResult in

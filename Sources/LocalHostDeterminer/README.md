@@ -1,11 +1,9 @@
-#  HostDeterminer
+# HostDeterminer
 
-This module allows you to determine the local host's name. It is important to set up the queue server, so clients would be able to connect to it.
-You can set the host name of each machine using the following bach command:
+This module attempts to determine a host name which other machines can use to communicate to current host. 
+If your DNS is configured correctly and IP addresses are static, everything is expected to work properly without any configurations. 
+Otherwise, you can always force the host name of a machine using the following bash command:
 
 ```
 sudo scutil --set HostName machine.example.com
 ```
-
-This will ensure you will get the consistent results. `Host.current()` API that we use as a fallback returns an array of `names` 
-that probably can give you wrong host name.

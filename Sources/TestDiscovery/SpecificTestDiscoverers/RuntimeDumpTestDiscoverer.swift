@@ -25,6 +25,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let hostname: String
     private let onDemandSimulatorPool: OnDemandSimulatorPool
     private let pluginEventBusProvider: PluginEventBusProvider
     private let resourceLocationResolver: ResourceLocationResolver
@@ -43,6 +44,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        hostname: String,
         onDemandSimulatorPool: OnDemandSimulatorPool,
         pluginEventBusProvider: PluginEventBusProvider,
         resourceLocationResolver: ResourceLocationResolver,
@@ -60,6 +62,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.hostname = hostname
         self.onDemandSimulatorPool = onDemandSimulatorPool
         self.pluginEventBusProvider = pluginEventBusProvider
         self.resourceLocationResolver = resourceLocationResolver
@@ -84,6 +87,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            hostname: hostname,
             logger: configuration.logger,
             pluginEventBusProvider: pluginEventBusProvider,
             runnerWasteCollectorProvider: runnerWasteCollectorProvider,
@@ -143,7 +147,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             logger: configuration.logger,
             simulatorOperationTimeouts: configuration.testConfiguration.simulatorOperationTimeouts,
             version: version,
-            globalMetricRecorder: globalMetricRecorder
+            globalMetricRecorder: globalMetricRecorder,
+            hostname: hostname
         )
     }
     

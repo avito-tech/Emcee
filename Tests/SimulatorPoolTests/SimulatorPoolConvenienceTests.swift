@@ -21,7 +21,8 @@ final class SimulatorPoolConvenienceTests: XCTestCase {
             logger: .noOp,
             simulatorOperationTimeouts: simulatorOperationTimeouts,
             version: version,
-            globalMetricRecorder: GlobalMetricRecorderImpl()
+            globalMetricRecorder: GlobalMetricRecorderImpl(),
+            hostname: "hostname"
         )
         allocatedSimulator.releaseSimulator()
         

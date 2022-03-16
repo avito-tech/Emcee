@@ -1,11 +1,9 @@
 import AppleTestModelsTestHelpers
-import TestDiscovery
 import BuildArtifacts
 import BuildArtifactsTestHelpers
 import CommonTestModels
 import DateProviderTestHelpers
 import DeveloperDirLocatorTestHelpers
-import DeveloperDirModels
 import FileSystemTestHelpers
 import MetricsExtensions
 import PluginManagerTestHelpers
@@ -18,10 +16,10 @@ import SimulatorPoolTestHelpers
 import SynchronousWaiter
 import Tmp
 import TestArgFile
+import TestDiscovery
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
-// TODO: check imports
 
 final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
@@ -205,6 +203,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             dateProvider: DateProviderFixture(),
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            hostname: "hostname",
             globalMetricRecorder: GlobalMetricRecorderImpl(),
             specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
             onDemandSimulatorPool: simulatorPool,

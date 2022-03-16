@@ -3,6 +3,7 @@ import DateProvider
 import EmceeLogging
 import FileSystem
 import Foundation
+import HostnameProvider
 import ProcessController
 import QueueModels
 import ResourceLocationResolver
@@ -11,7 +12,7 @@ import Runner
 public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
-    private let host: String
+    private let hostnameProvider: HostnameProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     private let version: Version
@@ -20,7 +21,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
     public init(
         dateProvider: DateProvider,
         fileSystem: FileSystem,
-        host: String,
+        hostnameProvider: HostnameProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         version: Version,
@@ -28,7 +29,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
-        self.host = host
+        self.hostnameProvider = hostnameProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
         self.version = version
@@ -39,7 +40,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         return XcodebuildBasedTestRunner(
             dateProvider: dateProvider,
             fileSystem: fileSystem,
-            host: host,
+            host: hostnameProvider.hostname,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             version: version,

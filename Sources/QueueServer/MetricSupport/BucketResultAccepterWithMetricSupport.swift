@@ -5,7 +5,6 @@ import CommonTestModels
 import DateProvider
 import Foundation
 import Graphite
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -15,6 +14,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
     private let bucketResultAcceptor: BucketResultAcceptor
     private let dateProvider: DateProvider
     private let jobStateProvider: JobStateProvider
+    private let hostname: String
     private let logger: ContextualLogger
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let statefulBucketQueue: StatefulBucketQueue
@@ -24,6 +24,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
         bucketResultAcceptor: BucketResultAcceptor,
         dateProvider: DateProvider,
         jobStateProvider: JobStateProvider,
+        hostname: String,
         logger: ContextualLogger,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         statefulBucketQueue: StatefulBucketQueue,
@@ -32,6 +33,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
         self.bucketResultAcceptor = bucketResultAcceptor
         self.dateProvider = dateProvider
         self.jobStateProvider = jobStateProvider
+        self.hostname = hostname
         self.logger = logger
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.statefulBucketQueue = statefulBucketQueue
@@ -60,6 +62,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
         let jobStates = jobStateProvider.allJobStates
         let queueStateMetricGatherer = QueueStateMetricGatherer(
             dateProvider: dateProvider,
+            queueHost: hostname,
             version: version
         )
         
@@ -86,7 +89,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
             if let persistentMetricsJobId = acceptResult.dequeuedBucket.enqueuedBucket.bucket.analyticsConfiguration.persistentMetricsJobId {
                 specificMetricRecorder.capture(
                     BucketProcessingDurationMetric(
-                        queueHost: LocalHostDeterminer.currentHostAddress,
+                        queueHost: hostname,
                         version: version,
                         persistentMetricsJobId: persistentMetricsJobId,
                         duration: dateProvider.currentDate().timeIntervalSince(acceptResult.dequeuedBucket.enqueuedBucket.enqueueTimestamp)
@@ -109,7 +112,7 @@ public class BucketResultAcceptorWithMetricSupport: BucketResultAcceptor {
                 return TimeToStartTestMetric(
                     testEntry: testEntryResult.testEntry,
                     version: version,
-                    queueHost: LocalHostDeterminer.currentHostAddress,
+                    queueHost: hostname,
                     timeToStartTest: timeToStart,
                     timestamp: dateProvider.currentDate()
                 )

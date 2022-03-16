@@ -3,11 +3,10 @@ import AutomaticTermination
 import EmceeDI
 import Deployer
 import DistWorkerModels
+import EmceeLogging
 import EmceeVersion
 import Foundation
-import LocalHostDeterminer
 import LocalQueueServerRunner
-import EmceeLogging
 import MetricsExtensions
 import PortDeterminer
 import QueueCommunication
@@ -27,7 +26,8 @@ public final class StartQueueServerCommand: Command {
     public let description = "Starts queue server on local machine. This mode waits for jobs to be scheduled via REST API."
     public let arguments: Arguments = [
         ArgumentDescriptions.emceeVersion.asOptional,
-        ArgumentDescriptions.queueServerConfigurationLocation.asRequired
+        ArgumentDescriptions.queueServerConfigurationLocation.asRequired,
+        ArgumentDescriptions.hostname.asRequired,
     ]
 
     private let deployQueue = OperationQueue.create(
@@ -43,6 +43,9 @@ public final class StartQueueServerCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
+        let hostname: String = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.hostname.name)
+        try HostnameSetup.update(hostname: hostname, di: di)
+    
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         let queueServerConfiguration = try ArgumentsReader.queueServerConfiguration(
             location: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServerConfigurationLocation.name),
@@ -68,6 +71,7 @@ public final class StartQueueServerCommand: Command {
 
         try startQueueServer(
             emceeVersion: emceeVersion,
+            hostname: hostname,
             queueServerConfiguration: queueServerConfiguration,
             workerDestinations: queueServerConfiguration.workerDeploymentDestinations,
             logger: try di.get()
@@ -76,6 +80,7 @@ public final class StartQueueServerCommand: Command {
     
     private func startQueueServer(
         emceeVersion: Version,
+        hostname: String,
         queueServerConfiguration: QueueServerConfiguration,
         workerDestinations: [DeploymentDestination],
         logger: ContextualLogger
@@ -89,7 +94,6 @@ public final class StartQueueServerCommand: Command {
             automaticTerminationPolicy: queueServerConfiguration.queueServerTerminationPolicy
         ).createAutomaticTerminationController()
         
-        let currentHostName = LocalHostDeterminer.currentHostAddress
         let queueServerPortProvider = SourcableQueueServerPortProvider()
         
         let remotePortDeterminer = RemoteQueuePortScanner(
@@ -114,7 +118,7 @@ public final class StartQueueServerCommand: Command {
             emceeVersion: emceeVersion,
             logger: logger,
             globalMetricRecorder: try di.get(),
-            queueHost: currentHostName,
+            queueHost: hostname,
             queueServerPortProvider: queueServerPortProvider
         )
         
@@ -156,6 +160,7 @@ public final class StartQueueServerCommand: Command {
             checkAgainTimeInterval: queueServerConfiguration.checkAgainTimeInterval,
             dateProvider: try di.get(),
             emceeVersion: emceeVersion,
+            hostname: hostname,
             localPortDeterminer: LocalPortDeterminer(
                 logger: logger,
                 portRange: EmceePorts.defaultQueuePortRange
@@ -164,6 +169,7 @@ public final class StartQueueServerCommand: Command {
             globalMetricRecorder: try di.get(),
             specificMetricRecorderProvider: try di.get(),
             onDemandWorkerStarter: OnDemandWorkerStarterViaDeployer(
+                hostname: hostname,
                 queueServerPortProvider: queueServerPortProvider,
                 remoteWorkerStarterProvider: remoteWorkerStarterProvider
             ),
@@ -195,6 +201,7 @@ public final class StartQueueServerCommand: Command {
         let localQueueServerRunner = LocalQueueServerRunner(
             automaticTerminationController: automaticTerminationController,
             deployQueue: deployQueue,
+            hostname: hostname,
             logger: logger,
             newWorkerRegistrationTimeAllowance: 360.0,
             pollPeriod: pollPeriod,

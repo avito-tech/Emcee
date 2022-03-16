@@ -18,6 +18,7 @@ final class SimulatorStateMachineActionExecutorProviderTests: XCTestCase {
     private lazy var fakeProcessControllerProvider = FakeProcessControllerProvider()
     private lazy var provider = SimulatorStateMachineActionExecutorProviderImpl(
         dateProvider: DateProviderFixture(),
+        hostname: "hostname",
         processControllerProvider: fakeProcessControllerProvider,
         simulatorSetPathDeterminer: FakeSimulatorSetPathDeterminer(
             provider: { self.tempFolder.absolutePath }

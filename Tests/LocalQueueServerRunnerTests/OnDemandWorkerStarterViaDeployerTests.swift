@@ -19,6 +19,7 @@ final class OnDemandWorkerStarterViaDeployerTests: XCTestCase {
         }
         
         let deployer = OnDemandWorkerStarterViaDeployer(
+            hostname: "hostname",
             queueServerPortProvider: FakeQueueServerPortProvider(port: 42),
             remoteWorkerStarterProvider: provider
         )

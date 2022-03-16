@@ -6,7 +6,6 @@ import DistWorkerModels
 import EmceeLogging
 import FileSystem
 import Foundation
-import LocalHostDeterminer
 import MetricsExtensions
 import QueueClient
 import QueueModels
@@ -30,6 +29,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     private let currentlyBeingProcessedBucketsTracker = DefaultCurrentlyBeingProcessedBucketsTracker()
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
+    private let hostname: String
     private let httpRestServer: HTTPRESTServer
     private let resourceLocationResolver: ResourceLocationResolver
     private let tempFolder: TemporaryFolder
@@ -45,6 +45,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
     
     public init(
         di: DI,
+        hostname: String,
         resourceLocationResolver: ResourceLocationResolver,
         tempFolder: TemporaryFolder,
         version: Version,
@@ -53,6 +54,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
         self.di = di
         self.dateProvider = try di.get()
         self.fileSystem = try di.get()
+        self.hostname = hostname
         self.logger = try di.get(ContextualLogger.self)
         self.httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
@@ -82,7 +84,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             workerId: workerId,
             workerCapabilities: try di.get(WorkerCapabilitiesProvider.self).workerCapabilities(),
             workerRestAddress: SocketAddress(
-                host: LocalHostDeterminer.currentHostAddress,
+                host: hostname,
                 port: try httpRestServer.start()
             ),
             callbackQueue: callbackQueue
@@ -123,6 +125,7 @@ public final class DistWorker: SchedulerDataSource, SchedulerDelegate {
             di: di,
             dateProvider: dateProvider,
             fileSystem: fileSystem,
+            hostname: hostname,
             logger: logger,
             resourceLocationResolver: resourceLocationResolver,
             schedulerDataSource: self,

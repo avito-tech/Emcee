@@ -7,7 +7,6 @@ import DistWorkerModels
 import FileSystem
 import Foundation
 import ListeningSemaphore
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -28,6 +27,7 @@ public final class Scheduler {
     private let di: DI
     private let dateProvider: DateProvider
     private let fileSystem: FileSystem
+    private let hostname: String
     private let rootLogger: ContextualLogger
     private let queue = OperationQueue()
     private let resourceLocationResolver: ResourceLocationResolver
@@ -42,6 +42,7 @@ public final class Scheduler {
         di: DI,
         dateProvider: DateProvider,
         fileSystem: FileSystem,
+        hostname: String,
         logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         schedulerDataSource: SchedulerDataSource,
@@ -53,6 +54,7 @@ public final class Scheduler {
         self.di = di
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
+        self.hostname = hostname
         self.rootLogger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.resourceSemaphore = ListeningSemaphore(
@@ -156,6 +158,7 @@ public final class Scheduler {
         RunAppleTestsPayloadExecutor(
             dateProvider: try di.get(),
             globalMetricRecorder: try di.get(),
+            hostname: hostname,
             onDemandSimulatorPool: try di.get(),
             runnerProvider: try di.get(),
             simulatorSettingsModifier: try di.get(),
@@ -185,7 +188,8 @@ public final class Scheduler {
             logger: logger,
             simulatorOperationTimeouts: runAppleTestsPayload.testsConfiguration.simulatorOperationTimeouts,
             version: version,
-            globalMetricRecorder: try di.get()
+            globalMetricRecorder: try di.get(),
+            hostname: hostname
         )
         defer { allocatedSimulator.releaseSimulator() }
         
@@ -199,6 +203,7 @@ public final class Scheduler {
             dateProvider: dateProvider,
             developerDirLocator: try di.get(),
             fileSystem: fileSystem,
+            hostname: hostname,
             logger: logger,
             pluginEventBusProvider: try di.get(),
             runnerWasteCollectorProvider: try di.get(),
@@ -265,7 +270,8 @@ public final class Scheduler {
 
     private func createRunAndroidTestsPayloadExecutor() throws -> RunAndroidTestsPayloadExecutor {
         RunAndroidTestsPayloadExecutor(
-            dateProvider: try di.get()
+            dateProvider: try di.get(),
+            hostname: hostname
         )
     }
 }

@@ -1,6 +1,5 @@
 import DateProvider
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -33,7 +32,8 @@ public extension SimulatorPool {
         logger: ContextualLogger,
         simulatorOperationTimeouts: SimulatorOperationTimeouts,
         version: Version,
-        globalMetricRecorder: GlobalMetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder,
+        hostname: String
     ) throws -> AllocatedSimulator {
         let logger = logger
         
@@ -58,7 +58,7 @@ public extension SimulatorPool {
             result: { error, duration in
                 globalMetricRecorder.capture(
                     SimulatorAllocationDurationMetric(
-                        host: LocalHostDeterminer.currentHostAddress,
+                        host: hostname,
                         duration: duration,
                         allocatedSuccessfully: error == nil,
                         version: version,

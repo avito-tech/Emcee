@@ -12,6 +12,7 @@ import Tmp
 
 public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorStateMachineActionExecutorProvider {
     private let dateProvider: DateProvider
+    private let hostname: String
     private let processControllerProvider: ProcessControllerProvider
     private let simulatorSetPathDeterminer: SimulatorSetPathDeterminer
     private let version: Version
@@ -19,12 +20,14 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
 
     public init(
         dateProvider: DateProvider,
+        hostname: String,
         processControllerProvider: ProcessControllerProvider,
         simulatorSetPathDeterminer: SimulatorSetPathDeterminer,
         version: Version,
         globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
+        self.hostname = hostname
         self.processControllerProvider = processControllerProvider
         self.simulatorSetPathDeterminer = simulatorSetPathDeterminer
         self.version = version
@@ -44,7 +47,8 @@ public final class SimulatorStateMachineActionExecutorProviderImpl: SimulatorSta
             dateProvider: dateProvider,
             delegate: simulatorStateMachineActionExecutor,
             version: version,
-            globalMetricRecorder: globalMetricRecorder
+            globalMetricRecorder: globalMetricRecorder,
+            hostname: hostname
         )
     }
 }

@@ -7,7 +7,6 @@ import EmceeExtensions
 import FileSystem
 import Foundation
 import JSONStream
-import LocalHostDeterminer
 import PluginSupport
 import SynchronousWaiter
 
@@ -32,8 +31,7 @@ public final class Plugin {
     public init(eventBus: EventBus) throws {
         self.logger = try loggingSetup.setupLogging(
             stderrVerbosity: Verbosity.info,
-            detailedLogVerbosity: .debug,
-            hostname: LocalHostDeterminer.currentHostAddress
+            detailedLogVerbosity: .debug
         )
         self.eventBus = eventBus
         self.jsonStreamToEventBusAdapter = JSONStreamToEventBusAdapter(

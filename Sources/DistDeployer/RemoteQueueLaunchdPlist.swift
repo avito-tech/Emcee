@@ -11,6 +11,8 @@ public final class RemoteQueueLaunchdPlist {
     private let deploymentId: String
     /// Emcee binary version
     private let emceeVersion: Version
+    /// Hostname which queue should use to set up communications
+    private let hostname: String
     /// Path to QueueServerConfiguration JSON at the deployment location
     private let queueServerConfigurationPath: AbsolutePath
     /// Path to the working directory of an Emcee binary at the deployment location
@@ -21,12 +23,14 @@ public final class RemoteQueueLaunchdPlist {
     public init(
         deploymentId: String,
         emceeVersion: Version,
+        hostname: String,
         queueServerConfigurationPath: AbsolutePath,
         containerPath: AbsolutePath,
         remoteQueueServerBinaryPath: AbsolutePath
     ) {
         self.deploymentId = deploymentId
         self.emceeVersion = emceeVersion
+        self.hostname = hostname
         self.queueServerConfigurationPath = queueServerConfigurationPath
         self.containerPath = containerPath
         self.remoteQueueServerBinaryPath = remoteQueueServerBinaryPath
@@ -44,6 +48,7 @@ public final class RemoteQueueLaunchdPlist {
                     remoteQueueServerBinaryPath.pathString, "startLocalQueueServer",
                     "--emcee-version", emceeVersion.value,
                     "--queue-server-configuration-location", queueServerConfigurationPath.pathString,
+                    "--hostname", hostname,
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,

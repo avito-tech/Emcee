@@ -34,6 +34,7 @@ final class RunTestsOnRemoteQueueLogic {
     func run(
         commonReportOutput: ReportOutput,
         emceeVersion: Version,
+        hostname: String,
         logger: ContextualLogger,
         queueServerConfiguration: QueueServerConfiguration,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
@@ -98,6 +99,7 @@ final class RunTestsOnRemoteQueueLogic {
         )
         
         let jobResults = try runTestsOnRemotelyRunningQueue(
+            hostname: hostname,
             queueServerAddress: runningQueueServerAddress,
             remoteCacheConfig: remoteCacheConfig,
             tempFolder: tempFolder,
@@ -214,6 +216,7 @@ final class RunTestsOnRemoteQueueLogic {
     }
     
     private func runTestsOnRemotelyRunningQueue(
+        hostname: String,
         queueServerAddress: SocketAddress,
         remoteCacheConfig: RuntimeDumpRemoteCacheConfig?,
         tempFolder: TemporaryFolder,
@@ -223,6 +226,7 @@ final class RunTestsOnRemoteQueueLogic {
     ) throws -> JobResults {
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            hostname: hostname,
             logger: logger,
             tempFolder: tempFolder,
             version: version
@@ -235,6 +239,7 @@ final class RunTestsOnRemoteQueueLogic {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                hostname: hostname,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),

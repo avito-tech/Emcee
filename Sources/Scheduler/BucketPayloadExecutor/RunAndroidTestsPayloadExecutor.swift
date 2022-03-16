@@ -1,17 +1,19 @@
 import DateProvider
 import CommonTestModels
 import Foundation
-import LocalHostDeterminer
 import MetricsExtensions
 import QueueModels
 
 public final class RunAndroidTestsPayloadExecutor {
     private let dateProvider: DateProvider
+    private let hostname: String
     
     public init(
-        dateProvider: DateProvider
+        dateProvider: DateProvider,
+        hostname: String
     ) {
         self.dateProvider = dateProvider
+        self.hostname = hostname
     }
     
     public func execute(
@@ -38,7 +40,7 @@ public final class RunAndroidTestsPayloadExecutor {
                             logs: [],
                             duration: 0,
                             startTime: dateProvider.dateSince1970ReferenceDate(),
-                            hostName: LocalHostDeterminer.currentHostAddress,
+                            hostName: hostname,
                             udid: "n/a"
                         )
                     ]

@@ -520,6 +520,7 @@ public final class AppleRunnerTests: XCTestCase {
             dateProvider: dateProvider,
             developerDirLocator: FakeDeveloperDirLocator(result: tempFolder.absolutePath),
             fileSystem: fileSystem,
+            hostname: "hostname",
             logger: .noOp,
             pluginEventBusProvider: noOpPluginEventBusProvider,
             runnerWasteCollectorProvider: FakeRunnerWasteCollectorProvider { [runnerWasteCollector] in

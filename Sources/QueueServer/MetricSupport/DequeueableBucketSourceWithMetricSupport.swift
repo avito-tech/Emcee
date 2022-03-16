@@ -4,7 +4,6 @@ import BucketQueueModels
 import DateProvider
 import Foundation
 import Graphite
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -15,6 +14,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
     private let dateProvider: DateProvider
     private let dequeueableBucketSource: DequeueableBucketSource
     private let jobStateProvider: JobStateProvider
+    private let hostname: String
     private let logger: ContextualLogger
     private let statefulBucketQueue: StatefulBucketQueue
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -24,6 +24,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         dateProvider: DateProvider,
         dequeueableBucketSource: DequeueableBucketSource,
         jobStateProvider: JobStateProvider,
+        hostname: String,
         logger: ContextualLogger,
         statefulBucketQueue: StatefulBucketQueue,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
@@ -32,6 +33,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         self.dateProvider = dateProvider
         self.dequeueableBucketSource = dequeueableBucketSource
         self.jobStateProvider = jobStateProvider
+        self.hostname = hostname
         self.logger = logger
         self.statefulBucketQueue = statefulBucketQueue
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
@@ -55,7 +57,11 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
         workerId: WorkerId
     ) {
         let jobStates = jobStateProvider.allJobStates
-        let queueStateMetricGatherer = QueueStateMetricGatherer(dateProvider: dateProvider, version: version)
+        let queueStateMetricGatherer = QueueStateMetricGatherer(
+            dateProvider: dateProvider,
+            queueHost: hostname,
+            version: version
+        )
         
         let queueStateMetrics = queueStateMetricGatherer.metrics(
             jobStates: jobStates,
@@ -65,13 +71,13 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             DequeueBucketsMetric(
                 workerId: workerId,
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: hostname,
                 numberOfBuckets: 1,
                 timestamp: dateProvider.currentDate()
             ),
             TimeToDequeueBucketMetric(
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: hostname,
                 timeInterval: Date().timeIntervalSince(dequeuedBucket.enqueuedBucket.enqueueTimestamp),
                 timestamp: dateProvider.currentDate()
             )
@@ -81,7 +87,7 @@ public final class DequeueableBucketSourceWithMetricSupport: DequeueableBucketSo
             DequeueTestsMetric(
                 workerId: workerId,
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: hostname,
                 numberOfTests: dequeuedBucket.enqueuedBucket.bucket.payloadContainer.payloadWithTests.testEntries.count,
                 timestamp: dateProvider.currentDate()
             )

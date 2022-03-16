@@ -4,6 +4,7 @@ import Dispatch
 import FileSystem
 import EmceeLogging
 import Foundation
+import HostnameProvider
 import MetricsExtensions
 import DeveloperDirLocator
 import PluginManager
@@ -16,6 +17,7 @@ public final class AppleRunnerProvider: RunnerProvider {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let hostnameProvider: HostnameProvider
     private let logger: ContextualLogger
     private let pluginEventBusProvider: PluginEventBusProvider
     private let runnerWasteCollectorProvider: RunnerWasteCollectorProvider
@@ -27,6 +29,7 @@ public final class AppleRunnerProvider: RunnerProvider {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        hostnameProvider: HostnameProvider,
         logger: ContextualLogger,
         pluginEventBusProvider: PluginEventBusProvider,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
@@ -37,6 +40,7 @@ public final class AppleRunnerProvider: RunnerProvider {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.hostnameProvider = hostnameProvider
         self.logger = logger
         self.pluginEventBusProvider = pluginEventBusProvider
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
@@ -54,6 +58,7 @@ public final class AppleRunnerProvider: RunnerProvider {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            hostname: hostnameProvider.hostname,
             logger: logger,
             pluginEventBusProvider: pluginEventBusProvider,
             runnerWasteCollectorProvider: runnerWasteCollectorProvider,

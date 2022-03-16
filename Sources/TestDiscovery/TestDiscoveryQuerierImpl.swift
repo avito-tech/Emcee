@@ -11,7 +11,6 @@ import PathLib
 import PluginManager
 import ProcessController
 import QueueModels
-import LocalHostDeterminer
 import ResourceLocationResolver
 import Runner
 import SimulatorPool
@@ -25,6 +24,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let hostname: String
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let onDemandSimulatorPool: OnDemandSimulatorPool
@@ -42,6 +42,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        hostname: String,
         globalMetricRecorder: GlobalMetricRecorder,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         onDemandSimulatorPool: OnDemandSimulatorPool,
@@ -58,6 +59,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.hostname = hostname
         self.globalMetricRecorder = globalMetricRecorder
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.onDemandSimulatorPool = onDemandSimulatorPool
@@ -236,7 +238,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         if let persistentMetricsJobId = persistentMetricsJobId {
             specificMetricRecorder.capture(
                 TestDiscoveryDurationMetric(
-                    host: LocalHostDeterminer.currentHostAddress,
+                    host: hostname,
                     version: version,
                     persistentMetricsJobId: persistentMetricsJobId,
                     isSuccessful: isSuccessful,
@@ -299,6 +301,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             dateProvider: dateProvider,
             developerDirLocator: developerDirLocator,
             fileSystem: fileSystem,
+            hostname: hostname,
             onDemandSimulatorPool: onDemandSimulatorPool,
             pluginEventBusProvider: pluginEventBusProvider,
             resourceLocationResolver: resourceLocationResolver,

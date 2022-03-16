@@ -27,6 +27,7 @@ final class LocalQueueServerRunnerTests: XCTestCase {
     private lazy var runner = LocalQueueServerRunner(
         automaticTerminationController: automaticTerminationController,
         deployQueue: deployQueue,
+        hostname: "hostname",
         logger: .noOp,
         newWorkerRegistrationTimeAllowance: 60.0,
         pollPeriod: 0.1,

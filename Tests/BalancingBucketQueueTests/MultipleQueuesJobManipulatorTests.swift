@@ -12,6 +12,7 @@ final class MultipleQueuesJobManipulatorTests: XCTestCase {
     private lazy var container = MultipleQueuesContainer()
     private lazy var manipulator = MultipleQueuesJobManipulator(
         dateProvider: DateProviderFixture(),
+        hostname: "hostname",
         specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider(),
         multipleQueuesContainer: container,
         emceeVersion: Version(value: "version")

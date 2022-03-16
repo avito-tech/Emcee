@@ -32,8 +32,7 @@ public final class LoggingSetup {
     
     public func setupLogging(
         stderrVerbosity: Verbosity,
-        detailedLogVerbosity: Verbosity,
-        hostname: String
+        detailedLogVerbosity: Verbosity
     ) throws -> ContextualLogger {
         let filename = logFilePrefix + String(ProcessInfo.processInfo.processIdentifier)
         let detailedLogPath = try TemporaryFile(
@@ -61,8 +60,7 @@ public final class LoggingSetup {
             metadata: [:]
         )
         
-        logger.info("To fetch detailed verbose log:")
-        logger.info("$ scp \(NSUserName())@\(hostname):\(detailedLogPath.absolutePath) /tmp/\(filename).log && open /tmp/\(filename).log")
+        logger.info("Verbose logs available at: \(detailedLogPath.absolutePath)")
         
         return logger
     }

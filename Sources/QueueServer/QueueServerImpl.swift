@@ -57,6 +57,7 @@ public final class QueueServerImpl: QueueServer {
         checkAgainTimeInterval: TimeInterval,
         dateProvider: DateProvider,
         emceeVersion: Version,
+        hostname: String,
         localPortDeterminer: LocalPortDeterminer,
         logger: ContextualLogger,
         globalMetricRecorder: GlobalMetricRecorder,
@@ -96,6 +97,7 @@ public final class QueueServerImpl: QueueServer {
         let multipleQueuesContainer = MultipleQueuesContainer()
         let jobManipulator: JobManipulator = MultipleQueuesJobManipulator(
             dateProvider: dateProvider,
+            hostname: hostname,
             specificMetricRecorderProvider: specificMetricRecorderProvider,
             multipleQueuesContainer: multipleQueuesContainer,
             emceeVersion: emceeVersion
@@ -154,6 +156,7 @@ public final class QueueServerImpl: QueueServer {
                 workerPermissionProvider: autoupdatingWorkerPermissionProvider
             ),
             jobStateProvider: jobStateProvider,
+            hostname: hostname,
             logger: logger,
             statefulBucketQueue: statefulBucketQueue,
             specificMetricRecorderProvider: specificMetricRecorderProvider,
@@ -181,6 +184,7 @@ public final class QueueServerImpl: QueueServer {
             bucketSplitInfo: bucketSplitInfo,
             dateProvider: dateProvider,
             enqueueableBucketReceptor: enqueueableBucketReceptor,
+            hostname: hostname,
             logger: logger,
             version: emceeVersion,
             specificMetricRecorderProvider: specificMetricRecorderProvider
@@ -204,6 +208,7 @@ public final class QueueServerImpl: QueueServer {
             globalMetricRecorder: globalMetricRecorder,
             jobStateProvider: jobStateProvider,
             logger: logger,
+            queueHostname: hostname,
             specificMetricRecorderProvider: specificMetricRecorderProvider,
             statefulBucketQueue: statefulBucketQueue,
             stuckBucketsReenqueuer: stuckBucketsReenqueuer,
@@ -220,6 +225,7 @@ public final class QueueServerImpl: QueueServer {
                 bucketResultAcceptor: bucketResultAcceptor,
                 dateProvider: dateProvider,
                 jobStateProvider: jobStateProvider,
+                hostname: hostname,
                 logger: logger,
                 specificMetricRecorderProvider: specificMetricRecorderProvider,
                 statefulBucketQueue: statefulBucketQueue,
@@ -259,6 +265,7 @@ public final class QueueServerImpl: QueueServer {
         self.workerAlivenessMetricCapturer = WorkerAlivenessMetricCapturer(
             dateProvider: dateProvider,
             reportInterval: .seconds(30),
+            queueHostname: hostname,
             version: emceeVersion,
             workerAlivenessProvider: workerAlivenessProvider,
             globalMetricRecorder: globalMetricRecorder

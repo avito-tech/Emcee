@@ -3,6 +3,7 @@ import AutomaticTermination
 import EmceeDI
 import EmceeLogging
 import EmceeVersion
+import LocalHostDeterminer
 import PathLib
 import QueueModels
 import RESTServer
@@ -20,28 +21,32 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.tempFolder.asOptional,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
+        ArgumentDescriptions.hostname.asOptional,
     ]
     
     private let di: DI
-    private let httpRestServer: HTTPRESTServer
     
     public init(di: DI) throws {
         self.di = di
-        self.httpRestServer = HTTPRESTServer(
+    }
+    
+    public func run(payload: CommandPayload) throws {
+        let hostname: String = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.hostname.name) ?? LocalHostDeterminer.currentHostAddress
+        try HostnameSetup.update(hostname: hostname, di: di)
+        
+        let httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             logger: try di.get(),
             portProvider: AnyAvailablePortProvider(),
             useOnlyIPv4: false
         )
-    }
-    
-    public func run(payload: CommandPayload) throws {
+
         let commonReportOutput = ReportOutput(
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
             tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
         )
-        
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
+        
         let logger = try di.get(ContextualLogger.self)
 
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
@@ -63,6 +68,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         try RunTestsOnRemoteQueueLogic(di: di).run(
             commonReportOutput: commonReportOutput,
             emceeVersion: emceeVersion,
+            hostname: hostname,
             logger: logger,
             queueServerConfiguration: queueServerConfiguration,
             remoteCacheConfig: remoteCacheConfig,

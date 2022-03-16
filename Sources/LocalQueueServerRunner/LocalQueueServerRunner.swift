@@ -1,7 +1,6 @@
 import AutomaticTermination
 import FileLock
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import QueueCommunication
 import QueueModels
@@ -13,6 +12,7 @@ import SynchronousWaiter
 public final class LocalQueueServerRunner {
     private let automaticTerminationController: AutomaticTerminationController
     private let deployQueue: OperationQueue
+    private let hostname: String
     private let logger: ContextualLogger
     private let newWorkerRegistrationTimeAllowance: TimeInterval
     private let pollPeriod: TimeInterval
@@ -23,14 +23,11 @@ public final class LocalQueueServerRunner {
     private let remoteWorkerStarterProvider: RemoteWorkerStarterProvider
     private let workerIds: Set<WorkerId>
     private let autoupdatingWorkerPermissionProvider: AutoupdatingWorkerPermissionProvider
-    
-    public static func queueServerAddress(port: SocketModels.Port) -> SocketAddress {
-        SocketAddress(host: LocalHostDeterminer.currentHostAddress, port: port)
-    }
 
     public init(
         automaticTerminationController: AutomaticTerminationController,
         deployQueue: OperationQueue,
+        hostname: String,
         logger: ContextualLogger,
         newWorkerRegistrationTimeAllowance: TimeInterval,
         pollPeriod: TimeInterval,
@@ -44,6 +41,7 @@ public final class LocalQueueServerRunner {
     ) {
         self.automaticTerminationController = automaticTerminationController
         self.deployQueue = deployQueue
+        self.hostname = hostname
         self.logger = logger
         self.newWorkerRegistrationTimeAllowance = newWorkerRegistrationTimeAllowance
         self.pollPeriod = pollPeriod
@@ -60,7 +58,10 @@ public final class LocalQueueServerRunner {
         autoupdatingWorkerPermissionProvider.startUpdating()
         
         try startWorkers(
-            port: try startQueueServer(emceeVersion: emceeVersion)
+            queueAddress: SocketAddress(
+                host: hostname,
+                port: try startQueueServer(emceeVersion: emceeVersion)
+            )
         )
         
         try queueServerTerminationWaiter.waitForWorkerToAppear(
@@ -96,7 +97,7 @@ public final class LocalQueueServerRunner {
         }
     }
     
-    private func startWorkers(port: SocketModels.Port) throws {
+    private func startWorkers(queueAddress: SocketAddress) throws {
         logger.trace("Deploying and starting workers in background")
         
         let dispatchGroup = DispatchGroup()
@@ -110,7 +111,7 @@ public final class LocalQueueServerRunner {
                         workerId: workerId
                     )
                     try remoteWorkerStarter.deployAndStartWorker(
-                        queueAddress: LocalQueueServerRunner.queueServerAddress(port: port)
+                        queueAddress: queueAddress
                     )
                 } catch {
                     self.logger.error("Failed to deploy to \(workerId): \(error)")

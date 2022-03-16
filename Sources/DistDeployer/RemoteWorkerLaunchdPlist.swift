@@ -47,7 +47,8 @@ public final class RemoteWorkerLaunchdPlist {
                     workerBinaryRemotePath.pathString, "distWork",
                     "--emcee-version", emceeVersion.value,
                     "--queue-server", queueAddress.asString,
-                    "--worker-id", deploymentDestination.workerId.value
+                    "--worker-id", deploymentDestination.workerId.value,
+                    "--hostname", deploymentDestination.host,
                 ],
                 environmentVariables: [:],
                 workingDirectory: containerPath.pathString,

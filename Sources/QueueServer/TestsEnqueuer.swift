@@ -2,7 +2,6 @@ import BalancingBucketQueue
 import CommonTestModels
 import DateProvider
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -14,6 +13,7 @@ public final class TestsEnqueuer {
     private let bucketSplitInfo: BucketSplitInfo
     private let dateProvider: DateProvider
     private let enqueueableBucketReceptor: EnqueueableBucketReceptor
+    private let hostname: String
     private let logger: ContextualLogger
     private let version: Version
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -23,6 +23,7 @@ public final class TestsEnqueuer {
         bucketSplitInfo: BucketSplitInfo,
         dateProvider: DateProvider,
         enqueueableBucketReceptor: EnqueueableBucketReceptor,
+        hostname: String,
         logger: ContextualLogger,
         version: Version,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider
@@ -32,6 +33,7 @@ public final class TestsEnqueuer {
         self.dateProvider = dateProvider
         self.enqueueableBucketReceptor = enqueueableBucketReceptor
         self.logger = logger
+        self.hostname = hostname
         self.version = version
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
     }
@@ -53,13 +55,13 @@ public final class TestsEnqueuer {
         ).capture(
             EnqueueTestsMetric(
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: hostname,
                 numberOfTests: configuredTestEntries.count,
                 timestamp: dateProvider.currentDate()
             ),
             EnqueueBucketsMetric(
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: hostname,
                 numberOfBuckets: buckets.count,
                 timestamp: dateProvider.currentDate()
             )

@@ -6,7 +6,6 @@ import DeveloperDirModels
 import EventBus
 import FileSystem
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -27,6 +26,7 @@ public final class AppleRunner: Runner {
     private let dateProvider: DateProvider
     private let developerDirLocator: DeveloperDirLocator
     private let fileSystem: FileSystem
+    private let hostname: String
     private let logger: ContextualLogger
     private let pluginEventBusProvider: PluginEventBusProvider
     private let pluginTearDownQueue = OperationQueue()
@@ -43,6 +43,7 @@ public final class AppleRunner: Runner {
         dateProvider: DateProvider,
         developerDirLocator: DeveloperDirLocator,
         fileSystem: FileSystem,
+        hostname: String,
         logger: ContextualLogger,
         pluginEventBusProvider: PluginEventBusProvider,
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
@@ -57,6 +58,7 @@ public final class AppleRunner: Runner {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
         self.fileSystem = fileSystem
+        self.hostname = hostname
         self.logger = logger
         self.pluginEventBusProvider = pluginEventBusProvider
         self.runnerWasteCollectorProvider = runnerWasteCollectorProvider
@@ -104,7 +106,8 @@ public final class AppleRunner: Runner {
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
             dateProvider: dateProvider,
-            lostTestProcessingMode: configuration.lostTestProcessingMode
+            lostTestProcessingMode: configuration.lostTestProcessingMode,
+            hostname: hostname
         )
         
         let eventBus = try pluginEventBusProvider.createEventBus(
@@ -168,7 +171,7 @@ public final class AppleRunner: Runner {
                 MetricReportingTestRunnerStream(
                     dateProvider: dateProvider,
                     version: version,
-                    host: LocalHostDeterminer.currentHostAddress,
+                    host: hostname,
                     persistentMetricsJobId: configuration.persistentMetricsJobId,
                     specificMetricRecorder: specificMetricRecorder
                 ),

@@ -22,16 +22,16 @@ public final class EnableWorkerCommand: Command {
     
     private let callbackQueue = DispatchQueue(label: "EnableWorkerCommand.callbackQueue")
     private let di: DI
-    private let logger: ContextualLogger
     
     public init(di: DI) throws {
         self.di = di
-        self.logger = try di.get(ContextualLogger.self)
     }
     
     public func run(payload: CommandPayload) throws {
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
+        
+        let logger = try di.get(ContextualLogger.self)
         
         let workerEnabler = WorkerEnablerImpl(
             requestSender: try di.get(RequestSenderProvider.self).requestSender(

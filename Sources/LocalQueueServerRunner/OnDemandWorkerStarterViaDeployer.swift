@@ -8,13 +8,16 @@ import QueueServerPortProvider
 import SocketModels
 
 public final class OnDemandWorkerStarterViaDeployer: OnDemandWorkerStarter {
+    private let hostname: String
     private let queueServerPortProvider: QueueServerPortProvider
     private let remoteWorkerStarterProvider: RemoteWorkerStarterProvider
     
     public init(
+        hostname: String,
         queueServerPortProvider: QueueServerPortProvider,
         remoteWorkerStarterProvider: RemoteWorkerStarterProvider
     ) {
+        self.hostname = hostname
         self.queueServerPortProvider = queueServerPortProvider
         self.remoteWorkerStarterProvider = remoteWorkerStarterProvider
     }
@@ -28,7 +31,8 @@ public final class OnDemandWorkerStarterViaDeployer: OnDemandWorkerStarter {
             workerId: workerId
         )
         try starter.deployAndStartWorker(
-            queueAddress: LocalQueueServerRunner.queueServerAddress(
+            queueAddress: SocketAddress(
+                host: hostname,
                 port: try queueServerPortProvider.port()
             )
         )

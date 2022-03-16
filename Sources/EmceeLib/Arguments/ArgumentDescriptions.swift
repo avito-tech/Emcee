@@ -13,6 +13,7 @@ final class ArgumentDescriptions {
     static let testArgFile = doubleDashedDescription(dashlessName: "test-arg-file", overview: "JSON file with test plan. See: https://github.com/avito-tech/Emcee/wiki/Test-Arg-File")
     static let trace = doubleDashedDescription(dashlessName: "trace", overview: "Path where the combined (for all test destinations) Chrome trace file should be created")
     static let workerId = doubleDashedDescription(dashlessName: "worker-id", overview: "An identifier used to distinguish between workers. Useful to match with deployment destination's identifier")
+    static let hostname = doubleDashedDescription(dashlessName: "hostname", overview: "Hostname which should be used by Emcee")
     
     static let worker = doubleDashedDescription(dashlessName: "worker", overview: "URL which describes a worker to spawn")
     static let queue = doubleDashedDescription(dashlessName: "queue", overview: "URL which describes a queue to spawn")

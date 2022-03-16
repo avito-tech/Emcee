@@ -6,6 +6,7 @@ import Deployer
 import EmceeDI
 import EmceeVersion
 import Foundation
+import LocalHostDeterminer
 import MetricsExtensions
 import PathLib
 import QueueModels
@@ -34,24 +35,28 @@ public final class RunTestsCommand: Command {
         ArgumentDescriptions.testTimeout.asOptional,
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.trace.asOptional,
+        ArgumentDescriptions.hostname.asOptional,
     ]
     
     private let di: DI
-    private let httpRestServer: HTTPRESTServer
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     
     public init(di: DI) throws {
         self.di = di
-        self.httpRestServer = HTTPRESTServer(
+        self.uniqueIdentifierGenerator = try di.get()
+    }
+    
+    public func run(payload: CommandPayload) throws {
+        let hostname: String = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.hostname.name) ?? LocalHostDeterminer.currentHostAddress
+        try HostnameSetup.update(hostname: hostname, di: di)
+        
+        let httpRestServer = HTTPRESTServer(
             automaticTerminationController: StayAliveTerminationController(),
             logger: try di.get(),
             portProvider: AnyAvailablePortProvider(),
             useOnlyIPv4: true
         )
-        self.uniqueIdentifierGenerator = try di.get()
-    }
-    
-    public func run(payload: CommandPayload) throws {
+        
         let queueUrls: [URL] = try payload.nonEmptyCollectionOfValues(argumentName: ArgumentDescriptions.queue.name)
         let queueDeploymentDestinations = try queueUrls.map { try $0.deploymentDestination() }
         
@@ -175,6 +180,7 @@ public final class RunTestsCommand: Command {
                 tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
             ),
             emceeVersion: EmceeVersion.version,
+            hostname: hostname,
             logger: try di.get(),
             queueServerConfiguration: queueServerConfiguration,
             remoteCacheConfig: nil,

@@ -14,6 +14,7 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
     lazy var launchdPlist = RemoteQueueLaunchdPlist(
         deploymentId: "deploymentId",
         emceeVersion: emceeVersion,
+        hostname: "hostname",
         queueServerConfigurationPath: self.queueServerConfigurationPath,
         containerPath: self.containerPath,
         remoteQueueServerBinaryPath: self.remoteQueueServerBinaryPath
@@ -32,7 +33,8 @@ final class RemoteQueueLaunchdPlistTests: XCTestCase {
                 "/path/to/remoteQueueServerBinary",
                 "startLocalQueueServer",
                 "--emcee-version", emceeVersion.value,
-                "--queue-server-configuration-location", "/path/to/queueServerConfiguration.json"
+                "--queue-server-configuration-location", "/path/to/queueServerConfiguration.json",
+                "--hostname", "hostname",
             ]
         )
         XCTAssertEqual(

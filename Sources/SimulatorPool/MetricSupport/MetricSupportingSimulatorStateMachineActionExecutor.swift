@@ -1,6 +1,5 @@
 import DateProvider
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -14,17 +13,20 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
     private let dateProvider: DateProvider
     private let version: Version
     private let globalMetricRecorder: GlobalMetricRecorder
+    private let hostname: String
     
     public init(
         dateProvider: DateProvider,
         delegate: SimulatorStateMachineActionExecutor,
         version: Version,
-        globalMetricRecorder: GlobalMetricRecorder
+        globalMetricRecorder: GlobalMetricRecorder,
+        hostname: String
     ) {
         self.dateProvider = dateProvider
         self.delegate = delegate
         self.version = version
         self.globalMetricRecorder = globalMetricRecorder
+        self.hostname = hostname
     }
     
     public func performCreateSimulatorAction(
@@ -37,6 +39,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .create,
             deviceType: simDeviceType,
             runtime: simRuntime,
+            hostname: hostname,
             work: {
                 try delegate.performCreateSimulatorAction(
                     environment: environment,
@@ -57,6 +60,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .boot,
             deviceType: simulator.simDeviceType,
             runtime: simulator.simRuntime,
+            hostname: hostname,
             work: {
                 try delegate.performBootSimulatorAction(
                     environment: environment,
@@ -76,6 +80,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .shutdown,
             deviceType: simulator.simDeviceType,
             runtime: simulator.simRuntime,
+            hostname: hostname,
             work: {
                 try delegate.performShutdownSimulatorAction(
                     environment: environment,
@@ -95,6 +100,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
             action: .delete,
             deviceType: simulator.simDeviceType,
             runtime: simulator.simRuntime,
+            hostname: hostname,
             work: {
                 try delegate.performDeleteSimulatorAction(
                     environment: environment,
@@ -109,6 +115,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
         action: SimulatorDurationMetric.Action,
         deviceType: SimDeviceType,
         runtime: SimRuntime,
+        hostname: String,
         work: () throws -> T
     ) throws -> T {
         let result: Either<T, Error>
@@ -122,7 +129,7 @@ public final class MetricSupportingSimulatorStateMachineActionExecutor: Simulato
         globalMetricRecorder.capture(
             SimulatorDurationMetric(
                 action: action,
-                host: LocalHostDeterminer.currentHostAddress,
+                host: hostname,
                 deviceType: deviceType,
                 runtime: runtime,
                 isSuccessful: result.isSuccess,

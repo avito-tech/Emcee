@@ -4,21 +4,23 @@ import Foundation
 import QueueModels
 import Metrics
 import MetricsExtensions
-import LocalHostDeterminer
 
 public final class MultipleQueuesJobManipulator: JobManipulator {
     private let dateProvider: DateProvider
+    private let hostname: String
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let multipleQueuesContainer: MultipleQueuesContainer
     private let emceeVersion: Version
     
     public init(
         dateProvider: DateProvider,
+        hostname: String,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         multipleQueuesContainer: MultipleQueuesContainer,
         emceeVersion: Version
     ) {
         self.dateProvider = dateProvider
+        self.hostname = hostname
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.multipleQueuesContainer = multipleQueuesContainer
         self.emceeVersion = emceeVersion
@@ -45,7 +47,7 @@ public final class MultipleQueuesJobManipulator: JobManipulator {
                         analyticsConfiguration: deletedJobQueue.analyticsConfiguration
                     ).capture(
                         JobProcessingDurationMetric(
-                            queueHost: LocalHostDeterminer.currentHostAddress,
+                            queueHost: hostname,
                             version: emceeVersion,
                             persistentMetricsJobId: persistentMetricsJobId,
                             duration: dateProvider.currentDate().timeIntervalSince(deletedJobQueue.job.creationTime)

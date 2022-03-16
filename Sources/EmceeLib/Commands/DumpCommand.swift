@@ -3,6 +3,7 @@ import EmceeDI
 import EmceeLogging
 import EmceeVersion
 import Foundation
+import LocalHostDeterminer
 import MetricsExtensions
 import PathLib
 import QueueModels
@@ -20,6 +21,7 @@ public final class DumpCommand: Command {
         ArgumentDescriptions.tempFolder.asRequired,
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.remoteCacheConfig.asOptional,
+        ArgumentDescriptions.hostname.asOptional,
     ]
     
     private let di: DI
@@ -30,6 +32,9 @@ public final class DumpCommand: Command {
     }
 
     public func run(payload: CommandPayload) throws {
+        let hostname: String = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.hostname.name) ?? LocalHostDeterminer.currentHostAddress
+        try HostnameSetup.update(hostname: hostname, di: di)
+    
         let testArgFile = try ArgumentsReader.testArgFile(try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.testArgFile.name))
         let remoteCacheConfig = try ArgumentsReader.remoteCacheConfig(
             try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.remoteCacheConfig.name)
@@ -54,6 +59,7 @@ public final class DumpCommand: Command {
         
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            hostname: hostname,
             logger: logger,
             tempFolder: tempFolder,
             version: emceeVersion
@@ -72,6 +78,7 @@ public final class DumpCommand: Command {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                hostname: hostname,
                 globalMetricRecorder: try di.get(),
                 specificMetricRecorderProvider: try di.get(),
                 onDemandSimulatorPool: try di.get(),

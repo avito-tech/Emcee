@@ -91,6 +91,7 @@ public final class RemoteQueueStarter {
         let launchdPlist = RemoteQueueLaunchdPlist(
             deploymentId: deploymentId,
             emceeVersion: emceeVersion,
+            hostname: deploymentDestination.host,
             queueServerConfigurationPath: containerPath.removingLastComponent.appending(
                 queueServerConfigurationDirectory,
                 queueServerConfigurationTargetPath

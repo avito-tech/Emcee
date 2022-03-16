@@ -7,8 +7,9 @@ import SocketModels
 import XCTest
 
 final class RemoteWorkerLaunchdPlistTests: XCTestCase {
-    let launchdPlist = RemoteWorkerLaunchdPlist(
-        deploymentDestination: DeploymentDestinationFixtures().build(),
+    private lazy var deploymentDestination = DeploymentDestinationFixtures().build()
+    private lazy var launchdPlist = RemoteWorkerLaunchdPlist(
+        deploymentDestination: deploymentDestination,
         emceeVersion: "emceeVersion",
         executableDeployableItem: DeployableItem(
             name: "emcee",
@@ -34,7 +35,9 @@ final class RemoteWorkerLaunchdPlistTests: XCTestCase {
                 "--queue-server",
                 "queue.host:24",
                 "--worker-id",
-                "localhost"
+                "localhost",
+                "--hostname",
+                deploymentDestination.host,
             ]
         )
         XCTAssertEqual(

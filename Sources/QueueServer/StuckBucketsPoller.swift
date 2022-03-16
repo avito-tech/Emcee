@@ -3,7 +3,6 @@ import BucketQueue
 import BucketQueueModels
 import DateProvider
 import Foundation
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions
@@ -16,6 +15,7 @@ public final class StuckBucketsPoller {
     private let globalMetricRecorder: GlobalMetricRecorder
     private let jobStateProvider: JobStateProvider
     private let logger: ContextualLogger
+    private let queueHostname: String
     private let specificMetricRecorderProvider: SpecificMetricRecorderProvider
     private let statefulBucketQueue: StatefulBucketQueue
     private let stuckBucketsReenqueuer: StuckBucketsReenqueuer
@@ -27,6 +27,7 @@ public final class StuckBucketsPoller {
         globalMetricRecorder: GlobalMetricRecorder,
         jobStateProvider: JobStateProvider,
         logger: ContextualLogger,
+        queueHostname: String,
         specificMetricRecorderProvider: SpecificMetricRecorderProvider,
         statefulBucketQueue: StatefulBucketQueue,
         stuckBucketsReenqueuer: StuckBucketsReenqueuer,
@@ -36,6 +37,7 @@ public final class StuckBucketsPoller {
         self.globalMetricRecorder = globalMetricRecorder
         self.jobStateProvider = jobStateProvider
         self.logger = logger
+        self.queueHostname = queueHostname
         self.specificMetricRecorderProvider = specificMetricRecorderProvider
         self.statefulBucketQueue = statefulBucketQueue
         self.stuckBucketsReenqueuer = stuckBucketsReenqueuer
@@ -64,7 +66,7 @@ public final class StuckBucketsPoller {
                 workerId: $0.workerId,
                 reason: $0.reason.metricParameterName,
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: queueHostname,
                 count: 1,
                 timestamp: dateProvider.currentDate()
             )
@@ -84,6 +86,7 @@ public final class StuckBucketsPoller {
         
         let queueStateMetricGatherer = QueueStateMetricGatherer(
             dateProvider: dateProvider,
+            queueHost: queueHostname,
             version: version
         )
         globalMetricRecorder.capture(

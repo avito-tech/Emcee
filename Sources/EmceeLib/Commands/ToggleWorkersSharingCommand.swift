@@ -16,15 +16,16 @@ public final class ToggleWorkersSharingCommand: Command {
         ArgumentDescriptions.setFeatureStatus.asRequired,
     ]
     
-    private let requestSenderProvider: RequestSenderProvider
-    private let logger: ContextualLogger
+    private let di: DI
     
     public init(di: DI) throws {
-        self.requestSenderProvider = try di.get()
-        self.logger = try di.get(ContextualLogger.self)
+        self.di = di
     }
     
     public func run(payload: CommandPayload) throws {
+        let requestSenderProvider: RequestSenderProvider = try di.get()
+        let logger: ContextualLogger = try di.get()
+        
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let sharingEnabled: Bool = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.setFeatureStatus.name)
         

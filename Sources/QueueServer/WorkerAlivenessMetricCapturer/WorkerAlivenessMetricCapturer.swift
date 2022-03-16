@@ -1,6 +1,5 @@
 import DateProvider
 import Foundation
-import LocalHostDeterminer
 import Metrics
 import MetricsExtensions
 import QueueModels
@@ -11,6 +10,7 @@ import WorkerAlivenessProvider
 public final class WorkerAlivenessMetricCapturer {
     private let dateProvider: DateProvider
     private let timer: DispatchBasedTimer
+    private let queueHostname: String
     private let version: Version
     private let workerAlivenessProvider: WorkerAlivenessProvider
     private let globalMetricRecorder: GlobalMetricRecorder
@@ -18,12 +18,14 @@ public final class WorkerAlivenessMetricCapturer {
     public init(
         dateProvider: DateProvider,
         reportInterval: DispatchTimeInterval,
+        queueHostname: String,
         version: Version,
         workerAlivenessProvider: WorkerAlivenessProvider,
         globalMetricRecorder: GlobalMetricRecorder
     ) {
         self.dateProvider = dateProvider
         self.timer = DispatchBasedTimer(repeating: reportInterval, leeway: .seconds(1))
+        self.queueHostname = queueHostname
         self.version = version
         self.workerAlivenessProvider = workerAlivenessProvider
         self.globalMetricRecorder = globalMetricRecorder
@@ -51,7 +53,7 @@ public final class WorkerAlivenessMetricCapturer {
                 workerId: $0.key,
                 status: $0.value.metricComponentName,
                 version: version,
-                queueHost: LocalHostDeterminer.currentHostAddress,
+                queueHost: queueHostname,
                 timestamp: dateProvider.currentDate()
             )
         }

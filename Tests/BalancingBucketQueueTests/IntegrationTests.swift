@@ -93,6 +93,7 @@ final class IntegrationTests: XCTestCase {
     )
     private lazy var multipleQueuesJobManipulator = MultipleQueuesJobManipulator(
         dateProvider: dateProvider,
+        hostname: "hostname",
         specificMetricRecorderProvider: SpecificMetricRecorderProviderImpl(
             mutableMetricRecorderProvider: MutableMetricRecorderProviderImpl(
                 queue: .global()

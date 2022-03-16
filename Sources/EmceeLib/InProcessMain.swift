@@ -9,6 +9,7 @@ import EmceeExtensions
 import FileCache
 import FileSystem
 import Foundation
+import HostnameProvider
 import LocalHostDeterminer
 import Metrics
 import MetricsExtensions
@@ -76,7 +77,6 @@ public final class InProcessMain {
         di.set(loggingSetup)
         
         let logger = try setupLogging(di: di, logsTimeToLive: logsTimeToLive, queue: logCleaningQueue)
-            .withMetadata(key: .hostname, value: LocalHostDeterminer.currentHostAddress)
             .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
             .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
             .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
@@ -182,10 +182,21 @@ public final class InProcessMain {
         )
         
         di.set(
+            MutableHostnameProviderImpl(
+                hostname: LocalHostDeterminer.currentHostAddress
+            ),
+            for: HostnameProvider.self
+        )
+        di.set(
+            try di.get(MutableHostnameProvider.self),
+            for: HostnameProvider.self
+        )
+        
+        di.set(
             DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
                 fileSystem: try di.get(),
-                host: LocalHostDeterminer.currentHostAddress,
+                hostnameProvider: try di.get(),
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
                 version: EmceeVersion.version,
@@ -209,6 +220,7 @@ public final class InProcessMain {
                 dateProvider: try di.get(),
                 developerDirLocator: try di.get(),
                 fileSystem: try di.get(),
+                hostnameProvider: try di.get(),
                 logger: try di.get(),
                 pluginEventBusProvider: try di.get(),
                 runnerWasteCollectorProvider: try di.get(),
@@ -263,8 +275,7 @@ public final class InProcessMain {
         let loggingSetup: LoggingSetup = try di.get()
         let logger = try loggingSetup.setupLogging(
             stderrVerbosity: .info,
-            detailedLogVerbosity: .debug,
-            hostname: LocalHostDeterminer.currentHostAddress
+            detailedLogVerbosity: .debug
         )
         
         try loggingSetup.cleanUpLogs(

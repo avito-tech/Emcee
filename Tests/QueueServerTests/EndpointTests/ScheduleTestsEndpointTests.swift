@@ -205,6 +205,7 @@ final class ScheduleTestsEndpointTests: XCTestCase {
         bucketSplitInfo: bucketSplitInfo,
         dateProvider: DateProviderFixture(),
         enqueueableBucketReceptor: enqueueableBucketReceptor,
+        hostname: "hostname",
         logger: .noOp,
         version: Version(value: "version"),
         specificMetricRecorderProvider: NoOpSpecificMetricRecorderProvider()

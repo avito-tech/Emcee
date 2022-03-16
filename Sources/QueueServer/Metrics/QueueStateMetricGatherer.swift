@@ -1,7 +1,6 @@
 import DateProvider
 import Foundation
 import Graphite
-import LocalHostDeterminer
 import Metrics
 import QueueModels
 
@@ -12,7 +11,7 @@ public final class QueueStateMetricGatherer {
     
     public init(
         dateProvider: DateProvider,
-        queueHost: String = LocalHostDeterminer.currentHostAddress,
+        queueHost: String,
         version: Version
     ) {
         self.dateProvider = dateProvider

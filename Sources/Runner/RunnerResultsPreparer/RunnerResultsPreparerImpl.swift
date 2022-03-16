@@ -1,19 +1,21 @@
 import CommonTestModels
 import DateProvider
-import LocalHostDeterminer
 import RunnerModels
 import SimulatorPoolModels
 
 public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
     private let dateProvider: DateProvider
     private let lostTestProcessingMode: LostTestProcessingMode
+    private let hostname: String
     
     public init(
         dateProvider: DateProvider,
-        lostTestProcessingMode: LostTestProcessingMode
+        lostTestProcessingMode: LostTestProcessingMode,
+        hostname: String
     ) {
         self.dateProvider = dateProvider
         self.lostTestProcessingMode = lostTestProcessingMode
+        self.hostname = hostname
     }
 
     public func prepareResults(
@@ -84,7 +86,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                     logs: testStoppedEvent.logs + collectedLogs,
                     duration: testStoppedEvent.testDuration,
                     startTime: testStoppedEvent.testStartTimestamp,
-                    hostName: LocalHostDeterminer.currentHostAddress,
+                    hostName: hostname,
                     udid: udid
                 )
             }
@@ -112,7 +114,7 @@ public final class RunnerResultsPreparerImpl: RunnerResultsPreparer {
                 logs: collectedLogs,
                 duration: 0,
                 startTime: dateProvider.dateSince1970ReferenceDate(),
-                hostName: LocalHostDeterminer.currentHostAddress,
+                hostName: hostname,
                 udid: udid
             )
         )

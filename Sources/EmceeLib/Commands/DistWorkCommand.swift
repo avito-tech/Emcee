@@ -31,6 +31,7 @@ public final class DistWorkCommand: Command {
     public let description = "Takes jobs from a dist runner queue and performs them"
     public var arguments: Arguments = [
         ArgumentDescriptions.emceeVersion.asOptional,
+        ArgumentDescriptions.hostname.asRequired,
         ArgumentDescriptions.queueServer.asRequired,
         ArgumentDescriptions.workerId.asRequired,
     ]
@@ -42,6 +43,9 @@ public final class DistWorkCommand: Command {
     }
     
     public func run(payload: CommandPayload) throws {
+        let hostname: String = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.hostname.name)
+        try HostnameSetup.update(hostname: hostname, di: di)
+
         let queueServerAddress: SocketAddress = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.queueServer.name)
         let workerId: WorkerId = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.workerId.name)
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
@@ -51,6 +55,7 @@ public final class DistWorkCommand: Command {
 
         let onDemandSimulatorPool = try OnDemandSimulatorPoolFactory.create(
             di: di,
+            hostname: hostname,
             logger: logger,
             tempFolder: tempFolder,
             version: emceeVersion
@@ -61,6 +66,7 @@ public final class DistWorkCommand: Command {
         
 
         let distWorker = try createDistWorker(
+            hostname: hostname,
             queueServerAddress: queueServerAddress,
             version: emceeVersion,
             workerId: workerId,
@@ -80,6 +86,7 @@ public final class DistWorkCommand: Command {
     }
     
     private func createDistWorker(
+        hostname: String,
         queueServerAddress: SocketAddress,
         version: Version,
         workerId: WorkerId,
@@ -128,6 +135,7 @@ public final class DistWorkCommand: Command {
         
         return try DistWorker(
             di: di,
+            hostname: hostname,
             resourceLocationResolver: try di.get(),
             tempFolder: tempFolder,
             version: version,

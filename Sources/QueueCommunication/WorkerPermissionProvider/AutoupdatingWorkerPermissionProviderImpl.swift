@@ -1,5 +1,4 @@
 import AtomicModels
-import LocalHostDeterminer
 import EmceeLogging
 import Metrics
 import MetricsExtensions

@@ -8,6 +8,7 @@ import Tmp
 public final class OnDemandSimulatorPoolFactory {
     public static func create(
         di: DI,
+        hostname: String,
         logger: ContextualLogger,
         simulatorBootQueue: DispatchQueue = DispatchQueue(label: "SimulatorBootQueue"),
         tempFolder: TemporaryFolder,
@@ -23,6 +24,7 @@ public final class OnDemandSimulatorPoolFactory {
                 simulatorBootQueue: simulatorBootQueue,
                 simulatorStateMachineActionExecutorProvider: SimulatorStateMachineActionExecutorProviderImpl(
                     dateProvider: try di.get(),
+                    hostname: hostname,
                     processControllerProvider: try di.get(),
                     simulatorSetPathDeterminer: SimulatorSetPathDeterminerImpl(
                         fileSystem: try di.get()

@@ -23,15 +23,17 @@ public final class InitTestArgFileCommand: Command {
         ArgumentDescriptions.output.asRequired,
     ]
     
-    private let logger: ContextualLogger
+    private let di: DI
     
     public init(
         di: DI
     ) throws {
-        self.logger = try di.get()
+        self.di = di
     }
     
     public func run(payload: CommandPayload) throws {
+        let logger = try di.get(ContextualLogger.self)
+        
         let outputPath: AbsolutePath = try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.output.name)
         
         let testDestination = TestDestination.iOSSimulator(deviceType: "iPhone X", version: "15.1")
