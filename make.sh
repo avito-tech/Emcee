@@ -28,6 +28,14 @@ function install_deps() {
 
 function generate_package_swift() {
     install_deps
+    if [[ -d ".build/checkouts/ios-commandlinetoolkit/" ]]
+    then
+        rm -rf ".build/checkouts/CommandLineToolkit"
+        cd ".build/checkouts/"
+        ln -s "ios-commandlinetoolkit" "CommandLineToolkit"
+        cd -
+    fi
+
     swift run --package-path ".build/checkouts/CommandLineToolkit/PackageGenerator/" package-gen .
 }
 
