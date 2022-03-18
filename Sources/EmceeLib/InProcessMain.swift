@@ -159,8 +159,20 @@ public final class InProcessMain {
         )
         
         di.set(
+            MutableHostnameProviderImpl(
+                hostname: LocalHostDeterminer.currentHostAddress
+            ),
+            for: MutableHostnameProvider.self
+        )
+        di.set(
+            try di.get(MutableHostnameProvider.self),
+            for: HostnameProvider.self
+        )
+        
+        di.set(
             PluginEventBusProviderImpl(
                 logger: logger,
+                hostnameProvider: try di.get(),
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get()
             ),
@@ -179,17 +191,6 @@ public final class InProcessMain {
                 processControllerProvider: try di.get()
             ),
             for: XcResultTool.self
-        )
-        
-        di.set(
-            MutableHostnameProviderImpl(
-                hostname: LocalHostDeterminer.currentHostAddress
-            ),
-            for: HostnameProvider.self
-        )
-        di.set(
-            try di.get(MutableHostnameProvider.self),
-            for: HostnameProvider.self
         )
         
         di.set(

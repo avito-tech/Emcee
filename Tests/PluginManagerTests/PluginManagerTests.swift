@@ -40,6 +40,7 @@ final class PluginManagerTests: XCTestCase {
         let manager = PluginManager(
             fileSystem: fileSystem,
             logger: .noOp,
+            hostname: "localhost",
             pluginLocations: [
                 AppleTestPluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],
@@ -58,6 +59,7 @@ final class PluginManagerTests: XCTestCase {
         let manager = PluginManager(
             fileSystem: fileSystem,
             logger: .noOp,
+            hostname: "localhost",
             pluginLocations: [
                 AppleTestPluginLocation(.localFilePath(executablePath.pathString))
             ],
@@ -85,6 +87,7 @@ final class PluginManagerTests: XCTestCase {
         let manager = PluginManager(
             fileSystem: fileSystem,
             logger: .noOp,
+            hostname: "localhost",
             pluginLocations: [
                 AppleTestPluginLocation(.localFilePath(pluginBundlePath.pathString))
             ],

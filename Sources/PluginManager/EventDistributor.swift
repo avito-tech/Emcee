@@ -17,12 +17,17 @@ public final class EventDistributor {
     private var pluginIdentifiers = Set<String>()
     private var connectedPluginIdentifiers = Set<String>()
     private let server = HttpServer()
+    private let hostname: String
     private var webSocketSessions = [WeakWebSocketSession]()
-    private let queue = DispatchQueue(label: "ru.avito.emcee.EventDistributor.queue")
+    private let queue = DispatchQueue(label: "EventDistributor.queue")
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     
-    public init(logger: ContextualLogger) {
+    public init(
+        hostname: String,
+        logger: ContextualLogger
+    ) {
+        self.hostname = hostname
         self.logger = logger
     }
     
@@ -54,9 +59,8 @@ public final class EventDistributor {
     
     public func webSocketAddress() throws -> String {
         return try queue.sync {
-            let host = "localhost"
             let port = try server.port()
-            let address = "ws://\(host):\(port)/"
+            let address = "ws://\(hostname):\(port)/"
             return address
         }
     }

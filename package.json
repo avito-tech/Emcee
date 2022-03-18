@@ -159,6 +159,7 @@
           "JunitReporting",
           "Kibana",
           "ListeningSemaphore",
+          "LocalHostDeterminer",
           "LocalQueueServerRunner",
           "MetricsExtensions",
           "ObservableFileReader",

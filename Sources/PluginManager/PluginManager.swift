@@ -27,6 +27,7 @@ public final class PluginManager: EventStream {
     public init(
         fileSystem: FileSystem,
         logger: ContextualLogger,
+        hostname: String,
         pluginLocations: Set<AppleTestPluginLocation>,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
@@ -34,7 +35,7 @@ public final class PluginManager: EventStream {
         self.fileSystem = fileSystem
         self.logger = logger
             .withMetadata(key: "pluginSessionId", value: sessionId.uuidString)
-        self.eventDistributor = EventDistributor(logger: logger)
+        self.eventDistributor = EventDistributor(hostname: hostname, logger: logger)
         self.pluginLocations = pluginLocations
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver

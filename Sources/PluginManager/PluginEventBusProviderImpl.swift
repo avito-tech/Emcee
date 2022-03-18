@@ -5,18 +5,22 @@ import Foundation
 import PluginSupport
 import ProcessController
 import ResourceLocationResolver
+import HostnameProvider
 
 public final class PluginEventBusProviderImpl: PluginEventBusProvider {
     private let logger: ContextualLogger
+    private let hostnameProvider: HostnameProvider
     private let processControllerProvider: ProcessControllerProvider
     private let resourceLocationResolver: ResourceLocationResolver
     
     public init(
         logger: ContextualLogger,
+        hostnameProvider: HostnameProvider,
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver
     ) {
         self.logger = logger
+        self.hostnameProvider = hostnameProvider
         self.processControllerProvider = processControllerProvider
         self.resourceLocationResolver = resourceLocationResolver
     }
@@ -42,6 +46,7 @@ public final class PluginEventBusProviderImpl: PluginEventBusProvider {
         let pluginManager = PluginManager(
             fileSystem: fileSystem,
             logger: logger,
+            hostname: hostnameProvider.hostname,
             pluginLocations: pluginLocations,
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver
