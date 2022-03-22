@@ -78,7 +78,8 @@ final class BucketQueueTests: XCTestCase {
         
         let testingResult = TestingResult(
             testDestination: TestDestinationAppleFixtures.iOSTestDestination,
-            unfilteredResults: []
+            unfilteredResults: [],
+            xcresultData: []
         )
         assertDoesNotThrow {
             _ = try bucketQueue.accept(
@@ -156,7 +157,8 @@ final class BucketQueueTests: XCTestCase {
         
         let testingResult = TestingResult(
             testDestination: TestDestinationAppleFixtures.iOSTestDestination,
-            unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)]
+            unfilteredResults: [TestEntryResult.lost(testEntry: testEntry)],
+            xcresultData: []
         )
         assertDoesNotThrow {
             _ = try bucketQueue.accept(
@@ -178,7 +180,8 @@ final class BucketQueueTests: XCTestCase {
         
         let testingResult = TestingResult(
             testDestination: TestDestinationAppleFixtures.iOSTestDestination,
-            unfilteredResults: [ /* empty - misses testEntry */ ]
+            unfilteredResults: [ /* empty - misses testEntry */ ],
+            xcresultData: []
         )
         assertThrows {
             try bucketQueue.accept(
@@ -200,7 +203,8 @@ final class BucketQueueTests: XCTestCase {
         
         let testingResult = TestingResult(
             testDestination: TestDestinationAppleFixtures.iOSTestDestination,
-            unfilteredResults: [ /* empty - misses testEntry */ ]
+            unfilteredResults: [ /* empty - misses testEntry */ ],
+            xcresultData: []
         )
         assertThrows {
             try bucketQueue.accept(

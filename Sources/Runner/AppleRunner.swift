@@ -19,6 +19,7 @@ import SynchronousWaiter
 import TestsWorkingDirectorySupport
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class AppleRunner: Runner {
     public typealias C = AppleRunnerConfiguration
@@ -38,6 +39,8 @@ public final class AppleRunner: Runner {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
+    
+    private let zipCompressor: ZipCompressor
         
     public init(
         dateProvider: DateProvider,
@@ -53,7 +56,8 @@ public final class AppleRunner: Runner {
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
-        waiter: Waiter
+        waiter: Waiter,
+        zipCompressor: ZipCompressor
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -69,6 +73,7 @@ public final class AppleRunner: Runner {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
+        self.zipCompressor = zipCompressor
     }
     
     /// Runs the given tests once without any attempts to restart the failed or crashed tests.
@@ -81,7 +86,8 @@ public final class AppleRunner: Runner {
         if entriesToRun.isEmpty {
             return RunnerRunResult(
                 runnerWasteCollector: runnerWasteCollector,
-                testEntryResults: []
+                testEntryResults: [],
+                xcresultData: []
             )
         }
         
@@ -101,7 +107,7 @@ public final class AppleRunner: Runner {
         
         
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
-        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
+        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory.path)
         runnerWasteCollector.scheduleCollection(path: configuration.simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
@@ -227,6 +233,13 @@ public final class AppleRunner: Runner {
             ]
         )
         
+        let zippedResultBundleOutputPath: AbsolutePath?
+        if configuration.appleTestConfiguration.collectResultBundles {
+            zippedResultBundleOutputPath = try tempFolder.createDirectory(components: []).appending("compressedBundle.zip")
+        } else {
+            zippedResultBundleOutputPath = nil
+        }
+        
         let runningInvocation = try testRunner.prepareTestRun(
             buildArtifacts: configuration.appleTestConfiguration.buildArtifacts,
             developerDirLocator: developerDirLocator,
@@ -234,7 +247,8 @@ public final class AppleRunner: Runner {
             logger: logger,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: zippedResultBundleOutputPath
         ).startExecutingTests()
         
         logger = logger
@@ -246,6 +260,20 @@ public final class AppleRunner: Runner {
             testRunnerRunningInvocationContainer.set(nil)
         }
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
+
+        let xcresultData: [Data]
+        if let zippedResultBundleOutputPath = zippedResultBundleOutputPath {
+            if FileManager().fileExists(
+                atPath: zippedResultBundleOutputPath.pathString
+            ), let zippedResultBundleContents = FileManager().contents(atPath: zippedResultBundleOutputPath.pathString)  {
+                xcresultData = [zippedResultBundleContents]
+            } else {
+                xcresultData = []
+                logger.error("Missing expected zipped result bundle at \(zippedResultBundleOutputPath.pathString)")
+            }
+        } else {
+            xcresultData = []
+        }
         
         let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
@@ -259,7 +287,8 @@ public final class AppleRunner: Runner {
         
         return RunnerRunResult(
             runnerWasteCollector: runnerWasteCollector,
-            testEntryResults: result
+            testEntryResults: result,
+            xcresultData: xcresultData
         )
     }
     
@@ -271,8 +300,10 @@ public final class AppleRunner: Runner {
         let testsWorkingDirectory = try tempFolder.createDirectory(
             components: [RunnerConstants.testsWorkingDir, contextId]
         )
-        let testRunnerWorkingDirectory = try tempFolder.createDirectory(
-            components: [RunnerConstants.runnerWorkingDir, contextId]
+        let testRunnerWorkingDirectory = TestRunnerWorkingDirectory(
+            path: try tempFolder.createDirectory(
+                components: [RunnerConstants.runnerWorkingDir, contextId]
+            )
         )
         
         let additionalEnvironment = testRunner.additionalEnvironment(

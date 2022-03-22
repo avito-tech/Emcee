@@ -82,7 +82,8 @@ public final class TestHistoryTrackerImpl: TestHistoryTracker {
         
         let testingResult = TestingResult(
             testDestination: testingResult.testDestination,
-            unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests
+            unfilteredResults: resultsOfSuccessfulTests + resultsOfFailedTests,
+            xcresultData: testingResult.xcresultData
         )
         
         let testEntriesToReenqueue = resultsOfTestsToRetry.map(\.testEntry)

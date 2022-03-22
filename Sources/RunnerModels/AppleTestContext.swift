@@ -11,7 +11,7 @@ public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
     public let environment: [String: String]
     public let userInsertedLibraries: [String]
     public let simulator: Simulator
-    public let testRunnerWorkingDirectory: AbsolutePath
+    public let testRunnerWorkingDirectory: TestRunnerWorkingDirectory
     public let testsWorkingDirectory: AbsolutePath
     public let testAttachmentLifetime: TestAttachmentLifetime
     
@@ -21,7 +21,7 @@ public struct AppleTestContext: Codable, Hashable, CustomStringConvertible {
         environment: [String: String],
         userInsertedLibraries: [String],
         simulator: Simulator,
-        testRunnerWorkingDirectory: AbsolutePath,
+        testRunnerWorkingDirectory: TestRunnerWorkingDirectory,
         testsWorkingDirectory: AbsolutePath,
         testAttachmentLifetime: TestAttachmentLifetime
     ) {

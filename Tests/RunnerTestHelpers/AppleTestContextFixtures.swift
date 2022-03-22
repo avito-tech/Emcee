@@ -15,7 +15,7 @@ public final class AppleTestContextFixtures {
     public var simulatorUdid: UDID
     public var simRuntime: SimRuntime
     public var simDeviceType: SimDeviceType
-    public var testRunnerWorkingDirectory: AbsolutePath
+    public var testRunnerWorkingDirectory: TestRunnerWorkingDirectory
     public var testsWorkingDirectory: AbsolutePath
     
     public init(
@@ -38,7 +38,7 @@ public final class AppleTestContextFixtures {
         self.simulatorUdid = simulatorUdid
         self.simRuntime = simRuntime
         self.simDeviceType = simDeviceType
-        self.testRunnerWorkingDirectory = testRunnerWorkingDirectory
+        self.testRunnerWorkingDirectory = TestRunnerWorkingDirectory(path: testRunnerWorkingDirectory)
         self.testsWorkingDirectory = testsWorkingDirectory
     }
     

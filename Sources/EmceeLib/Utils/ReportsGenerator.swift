@@ -3,25 +3,44 @@ import CommonTestModels
 import Foundation
 import JunitReporting
 import EmceeLogging
+import PathLib
+import ProcessController
 import ResourceLocationResolver
+import ResultBundleReporting
 import TestArgFile
+import Tmp
 
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
     private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
+    private let resultBundleGenerator: ResultBundleGenerator
+    
+    
+    enum XcresultBundleError: Error, CustomStringConvertible {
+        case missingResultBundle(path: AbsolutePath)
+        
+        var description: String {
+            switch self {
+            case .missingResultBundle(let path):
+                return "Missing result bundle at path \(path)"
+            }
+        }
+    }
     
     public init(
         logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         testingResult: CombinedTestingResults,
-        reportOutput: ReportOutput
+        reportOutput: ReportOutput,
+        resultBundleGenerator: ResultBundleGenerator
     ) {
         self.logger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.testingResult = testingResult
         self.reportOutput = reportOutput
+        self.resultBundleGenerator = resultBundleGenerator
     }
     
     public func prepareReports() throws {
@@ -43,7 +62,26 @@ public final class ReportsGenerator {
             )
         }
         
+        if let resultBundle = reportOutput.resultBundle {
+            try prepareResultBundleReport(
+                testingResult: testingResult,
+                path: resourceLocationResolver.resolvePath(
+                    resourceLocation: .localFilePath(resultBundle)
+                ).directlyAccessibleResourcePath().pathString
+            )
+        }
+        
         prepareConsoleReport(testingResult: testingResult)
+    }
+    
+    private func prepareResultBundleReport(
+        testingResult: CombinedTestingResults,
+        path: String
+    ) throws {
+        try resultBundleGenerator.writeReport(
+            xcresultData: testingResult.xcresultData,
+            path: path
+        )
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {

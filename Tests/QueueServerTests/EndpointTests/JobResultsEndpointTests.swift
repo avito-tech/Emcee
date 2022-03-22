@@ -19,7 +19,8 @@ final class JobResultsEndpointTests: XCTestCase, JobResultsProvider {
                     testDestination: TestDestinationAppleFixtures.iOSTestDestination,
                     unfilteredResults: [
                         TestEntryResult.lost(testEntry: TestEntryFixtures.testEntry()),
-                    ]
+                    ],
+                    xcresultData: []
                 )
             )
         ]

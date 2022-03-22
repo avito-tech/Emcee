@@ -23,6 +23,7 @@ import Tmp
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
 import AppleTestModelsTestHelpers
+import ZipTestHelpers
 
 public final class AppleRunnerTests: XCTestCase {
     lazy var testEntry = TestEntryFixtures.testEntry()
@@ -445,7 +446,7 @@ public final class AppleRunnerTests: XCTestCase {
         _ = try runTestEntries([testEntry])
 
         XCTAssertEqual(
-            testRunnerProvider.predefinedFakeTestRunner.testContext?.testRunnerWorkingDirectory,
+            testRunnerProvider.predefinedFakeTestRunner.testContext?.testRunnerWorkingDirectory.path,
             tempFolder.absolutePath.appending(RunnerConstants.runnerWorkingDir, uniqueIdentifierGenerator.value)
         )
     }
@@ -532,7 +533,8 @@ public final class AppleRunnerTests: XCTestCase {
             testTimeoutCheckInterval: .milliseconds(100),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: Version(value: "version"),
-            waiter: SynchronousWaiter()
+            waiter: SynchronousWaiter(),
+            zipCompressor: FakeZipCompressor()
         )
         return try runner.runOnce(
             entriesToRun: testEntries,

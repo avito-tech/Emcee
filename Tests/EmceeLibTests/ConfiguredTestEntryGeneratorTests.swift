@@ -70,7 +70,8 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1)],
-                workerCapabilityRequirements: []
+                workerCapabilityRequirements: [],
+                collectResultBundles: false
             ),
             logger: .noOp
         )
@@ -121,7 +122,8 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
-                workerCapabilityRequirements: []
+                workerCapabilityRequirements: [],
+                collectResultBundles: false
             ),
             logger: .noOp
         )
@@ -173,7 +175,8 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testTimeoutConfiguration: testTimeoutConfiguration,
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.allDiscoveredTests],
-                workerCapabilityRequirements: []
+                workerCapabilityRequirements: [],
+                collectResultBundles: false
             ),
             logger: .noOp
         )

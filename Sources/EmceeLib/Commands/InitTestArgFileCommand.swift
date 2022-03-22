@@ -125,7 +125,8 @@ public final class InitTestArgFileCommand: Command {
                             ),
                             constraint: .present
                         )
-                    ]
+                    ],
+                    collectResultBundles: false
                 )
             ],
             prioritizedJob: PrioritizedJob(
@@ -168,7 +169,8 @@ public final class InitTestArgFileCommand: Command {
                     testDestination: testDestination,
                     reportOutput: ReportOutput(
                         junit: "Absolute path to where junit specific for _this test destination_ should be created. --junit will contain the complete junit report.",
-                        tracingReport: "Absolute path to where Chrome trace specific for _this test destination_ should be created. --trace will contain the complete trace for the whole test run."
+                        tracingReport: "Absolute path to where Chrome trace specific for _this test destination_ should be created. --trace will contain the complete trace for the whole test run.",
+                        resultBundle: "Absolute path merged result bundle from xcodebuild invokations. --resultBundle"
                     )
                 ),
             ]

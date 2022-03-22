@@ -212,7 +212,8 @@ public final class Scheduler {
             testRunnerProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
             version: version,
-            waiter: try di.get()
+            waiter: try di.get(),
+            zipCompressor: try di.get()
         )
 
         let runnerResult = try runner.runOnce(
@@ -237,7 +238,8 @@ public final class Scheduler {
         
         return TestingResult(
             testDestination: runAppleTestsPayload.testDestination,
-            unfilteredResults: runnerResult.testEntryResults
+            unfilteredResults: runnerResult.testEntryResults,
+            xcresultData: runnerResult.xcresultData
         )
     }
     
