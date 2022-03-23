@@ -90,8 +90,7 @@ public final class DumpCommand: Command {
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
                 version: emceeVersion,
-                waiter: try di.get(),
-                zipCompressor: try di.get()
+                waiter: try di.get()
             ),
             for: TestDiscoveryQuerier.self
         )

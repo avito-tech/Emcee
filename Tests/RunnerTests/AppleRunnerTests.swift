@@ -533,8 +533,7 @@ public final class AppleRunnerTests: XCTestCase {
             testTimeoutCheckInterval: .milliseconds(100),
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: Version(value: "version"),
-            waiter: SynchronousWaiter(),
-            zipCompressor: FakeZipCompressor()
+            waiter: SynchronousWaiter()
         )
         return try runner.runOnce(
             entriesToRun: testEntries,

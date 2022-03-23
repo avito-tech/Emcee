@@ -230,8 +230,7 @@ public final class InProcessMain {
                 runnerWasteCollectorProvider: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                waiter: try di.get(),
-                zipCompressor: try di.get()
+                waiter: try di.get()
             ),
             for: AppleRunnerProvider.self
         )

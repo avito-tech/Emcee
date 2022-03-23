@@ -1586,6 +1586,7 @@ let package = Package(
         .target(
             name: "ResultBundleReporting",
             dependencies: [
+                "EmceeLogging",
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
@@ -1672,7 +1673,6 @@ let package = Package(
                 .product(name: "Timer", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
-                "Zip",
             ],
             path: "Sources/Runner"
         ),

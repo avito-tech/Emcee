@@ -217,8 +217,7 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
             version: version,
-            waiter: SynchronousWaiter(),
-            zipCompressor: FakeZipCompressor()
+            waiter: SynchronousWaiter()
         )
     }
     
