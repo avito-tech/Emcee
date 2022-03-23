@@ -5,19 +5,37 @@ public final class AndroidBuildArtifactsFixture {
     public var result: AndroidBuildArtifacts
     
     public init(
-        result: AndroidBuildArtifacts = .applicationTests(
-            appApk: ApkLocation(.localFilePath("app.apk")),
-            testApk: ApkLocation(.localFilePath("tests.apk"))
+        result: AndroidBuildArtifacts = AndroidBuildArtifacts(
+            appApk: ApkDescription(
+                location: ApkLocation(.localFilePath("app.apk")),
+                package: "ru.avito.app.package"
+            ),
+            testApk: ApkDescription(
+                location: ApkLocation(.localFilePath("tests.apk")),
+                package: "ru.avito.tests.package"
+            ),
+            runnerClass: "ru.avito.runnerClass"
         )
     ) {
         self.result = result
     }
     
     public func with(
-        appApk: ApkLocation = ApkLocation(.localFilePath("app.apk")),
-        testApk: ApkLocation = ApkLocation(.localFilePath("tests.apk"))
+        appApk: ApkDescription = ApkDescription(
+            location: ApkLocation(.localFilePath("app.apk")),
+            package: "ru.avito.app.package"
+        ),
+        testApk: ApkDescription = ApkDescription(
+            location: ApkLocation(.localFilePath("tests.apk")),
+            package: "ru.avito.tests.package"
+        ),
+        runnerClass: String = "ru.avito.runnerClass"
     ) -> Self {
-        result = .applicationTests(appApk: appApk, testApk: testApk)
+        result = AndroidBuildArtifacts(
+            appApk: appApk,
+            testApk: testApk,
+            runnerClass: runnerClass
+        )
         return self
     }
     
