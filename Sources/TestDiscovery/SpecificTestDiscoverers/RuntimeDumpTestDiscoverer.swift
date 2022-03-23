@@ -19,6 +19,7 @@ import SimulatorPoolModels
 import SynchronousWaiter
 import Tmp
 import UniqueIdentifierGenerator
+import Zip
 
 public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let buildArtifacts: AppleBuildArtifacts
@@ -38,6 +39,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let waiter: Waiter
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorder: SpecificMetricRecorder
+    private let zipCompressor: ZipCompressor
     
     public init(
         buildArtifacts: AppleBuildArtifacts,
@@ -56,7 +58,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         version: Version,
         waiter: Waiter,
         globalMetricRecorder: GlobalMetricRecorder,
-        specificMetricRecorder: SpecificMetricRecorder
+        specificMetricRecorder: SpecificMetricRecorder,
+        zipCompressor: ZipCompressor
     ) {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
@@ -75,6 +78,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.waiter = waiter
         self.globalMetricRecorder = globalMetricRecorder
         self.specificMetricRecorder = specificMetricRecorder
+        self.zipCompressor = zipCompressor
     }
     
     public func discoverTestEntries(
@@ -96,7 +100,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
-            waiter: waiter
+            waiter: waiter,
+            zipCompressor: zipCompressor
         )
         
         let allocatedSimulator = try simulatorForTestDiscovery(

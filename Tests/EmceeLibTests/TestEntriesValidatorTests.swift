@@ -161,7 +161,8 @@ final class TestEntriesValidatorTests: XCTestCase {
             testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: 0, testRunnerMaximumSilenceDuration: 0),
             testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
-            workerCapabilityRequirements: []
+            workerCapabilityRequirements: [],
+            collectResultBundles: false
         )
     }
 }

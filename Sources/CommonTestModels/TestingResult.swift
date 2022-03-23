@@ -19,13 +19,17 @@ public struct TestingResult: Codable, Hashable {
     public var failedTests: [TestEntryResult] {
         return unfilteredResults.filter { $0.succeeded == false }
     }
+    
+    public let xcresultData: [Data]
 
     public init(
         testDestination: TestDestination,
-        unfilteredResults: [TestEntryResult])
-    {
+        unfilteredResults: [TestEntryResult],
+        xcresultData: [Data]
+    ) {
         self.testDestination = testDestination
         self.unfilteredResults = unfilteredResults
+        self.xcresultData = xcresultData
     }
 }
 
@@ -68,7 +72,8 @@ public extension TestingResult {
         }
         return TestingResult(
             testDestination: testDestination,
-            unfilteredResults: mergedResults
+            unfilteredResults: mergedResults,
+            xcresultData: testingResults.flatMap(\.xcresultData)
         )
     }
 }

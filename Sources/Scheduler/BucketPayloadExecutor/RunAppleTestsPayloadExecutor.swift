@@ -82,7 +82,8 @@ public final class RunAppleTestsPayloadExecutor {
                             udid: UDID(value: "undefined")
                         )
                     )
-                }
+                },
+                xcresultData: []
             )
         }
         return .testingResult(testingResult)
@@ -178,7 +179,8 @@ public final class RunAppleTestsPayloadExecutor {
             
             return TestingResult(
                 testDestination: runAppleTestsPayload.testDestination,
-                unfilteredResults: runnerResult.testEntryResults
+                unfilteredResults: runnerResult.testEntryResults,
+                xcresultData: runnerResult.xcresultData
             )
         }
     }

@@ -74,7 +74,8 @@ public final class FakeTestRunner: TestRunner {
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
         testContext: AppleTestContext,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        zippedResultBundleOutputPath: AbsolutePath?
     ) throws -> TestRunnerInvocation {
         isRunCalled = true
 
@@ -99,7 +100,7 @@ public final class FakeTestRunner: TestRunner {
     public var isAdditionalEnvironmentCalled = false
     public var additionalEnvironmentReturns: [String: String] = [:]
     
-    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String : String] {
+    public func additionalEnvironment(testRunnerWorkingDirectory: TestRunnerWorkingDirectory) -> [String : String] {
         isAdditionalEnvironmentCalled = true
         return additionalEnvironmentReturns
     }

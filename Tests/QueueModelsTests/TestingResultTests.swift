@@ -16,7 +16,7 @@ final class TestingResultTests: XCTestCase {
                 .withResult(
                     testEntry: TestEntryFixtures.testEntry(className: "failure", methodName: ""),
                     testRunResult: TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 0))
-            ])
+            ], xcresultData: [])
         
         XCTAssertEqual(result.successfulTests.count, 1)
         XCTAssertEqual(result.successfulTests[0].testEntry.testName.className, "success")
@@ -37,7 +37,7 @@ final class TestingResultTests: XCTestCase {
                         TestRunResultFixtures.testRunResult(succeeded: true, timestamp: 0),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 2)
                     ])
-            ])
+            ], xcresultData: [])
         
         XCTAssertEqual(result.successfulTests.count, 1)
         XCTAssertEqual(result.successfulTests[0].testEntry.testName.className, "success")
@@ -59,7 +59,7 @@ final class TestingResultTests: XCTestCase {
                         TestRunResultFixtures.testRunResult(succeeded: true, timestamp: 10),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 11)
                     ])
-            ])
+            ], xcresultData: [])
         let result2 = TestingResult(
             testDestination: testDestination,
             unfilteredResults: [
@@ -69,7 +69,7 @@ final class TestingResultTests: XCTestCase {
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 0),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 1)
                     ])
-            ])
+            ], xcresultData: [])
         let result3 = TestingResult(
             testDestination: testDestination,
             unfilteredResults: [
@@ -78,7 +78,7 @@ final class TestingResultTests: XCTestCase {
                     testRunResults: [
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 42)
                     ])
-            ])
+            ], xcresultData: [])
         
         let merged = try TestingResult.byMerging(testingResults: [result1, result2, result3])
         
@@ -108,7 +108,7 @@ final class TestingResultTests: XCTestCase {
                         TestRunResultFixtures.testRunResult(succeeded: true, timestamp: 10),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 11)
                     ])
-            ])
+            ], xcresultData: [])
         let result2 = TestingResult(
             testDestination: testDestination2,
             unfilteredResults: [
@@ -118,7 +118,7 @@ final class TestingResultTests: XCTestCase {
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 0),
                         TestRunResultFixtures.testRunResult(succeeded: false, timestamp: 1)
                     ])
-            ])
+            ], xcresultData: [])
         XCTAssertThrowsError(_ = try TestingResult.byMerging(testingResults: [result1, result2]))
     }
     
@@ -127,7 +127,7 @@ final class TestingResultTests: XCTestCase {
             testDestination: TestDestinationAppleFixtures.iOSTestDestination,
             unfilteredResults: [
                 .lost(testEntry: TestEntryFixtures.testEntry(className: "lost", methodName: ""))
-            ])
+            ], xcresultData: [])
         
         XCTAssertEqual(result.successfulTests.count, 0)
         

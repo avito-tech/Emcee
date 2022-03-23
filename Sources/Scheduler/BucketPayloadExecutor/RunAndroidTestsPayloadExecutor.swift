@@ -45,7 +45,8 @@ public final class RunAndroidTestsPayloadExecutor {
                         )
                     ]
                 )
-            }
+            },
+            xcresultData: []
         )
         
         return BucketResult.testingResult(testingResult)

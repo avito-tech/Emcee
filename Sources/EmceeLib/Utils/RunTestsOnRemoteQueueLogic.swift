@@ -19,6 +19,7 @@ import SocketModels
 import SignalHandling
 import SimulatorPool
 import RequestSender
+import ResultBundleReporting
 import SynchronousWaiter
 import UniqueIdentifierGenerator
 
@@ -83,6 +84,7 @@ final class RunTestsOnRemoteQueueLogic {
         let testArgFile = try preprocessTestArgFile(
             testArgFile: testArgFile,
             buildArtifactsPreparer: buildArtifactsPreparer,
+            commonReportOutput: commonReportOutput,
             logger: logger
         )
         
@@ -112,7 +114,12 @@ final class RunTestsOnRemoteQueueLogic {
             resourceLocationResolver: try di.get(),
             bucketResults: jobResults.bucketResults,
             commonReportOutput: commonReportOutput,
-            testDestinationConfigurations: testArgFile.testDestinationConfigurations
+            testDestinationConfigurations: testArgFile.testDestinationConfigurations,
+            resultBundleGenerator: ResultBundleGenerator(
+                processControllerProvider: try di.get(),
+                tempFolder: try TemporaryFolder(),
+                logger: try di.get()
+            )
         )
         try resultOutputGenerator.generateOutput()
     }
@@ -120,6 +127,7 @@ final class RunTestsOnRemoteQueueLogic {
     private func preprocessTestArgFile(
         testArgFile: TestArgFile,
         buildArtifactsPreparer: BuildArtifactsPreparer,
+        commonReportOutput: ReportOutput,
         logger: ContextualLogger
     ) throws -> TestArgFile {
         logger.info("Preparing build artifacts to be accessible by workers...")
@@ -133,6 +141,8 @@ final class RunTestsOnRemoteQueueLogic {
                     buildArtifacts: try buildArtifactsPreparer.prepare(
                         buildArtifacts: testArgFileEntry.buildArtifacts
                     )
+                ).with(
+                    collectResultBundles: commonReportOutput.resultBundle != nil
                 )
             }
         )
@@ -251,7 +261,8 @@ final class RunTestsOnRemoteQueueLogic {
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
                 version: version,
-                waiter: try di.get()
+                waiter: try di.get(),
+                zipCompressor: try di.get()
             ),
             for: TestDiscoveryQuerier.self
         )

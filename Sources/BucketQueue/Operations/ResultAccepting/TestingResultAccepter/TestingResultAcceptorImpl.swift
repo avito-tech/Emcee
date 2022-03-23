@@ -75,7 +75,8 @@ public final class TestingResultAcceptorImpl: TestingResultAcceptor {
             let lostResult = try testHistoryTracker.accept(
                 testingResult: TestingResult(
                     testDestination: testingResult.testDestination,
-                    unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) }
+                    unfilteredResults: lostTestEntries.map { .lost(testEntry: $0) },
+                    xcresultData: testingResult.xcresultData
                 ),
                 bucketId: bucket.bucketId,
                 numberOfRetries: bucketPayloadWithTests.testExecutionBehavior.numberOfRetries,

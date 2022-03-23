@@ -32,7 +32,8 @@ public final class TestingResultFixtures {
     public func testingResult() -> TestingResult {
         return TestingResult(
             testDestination: testDestination,
-            unfilteredResults: unfilteredResults
+            unfilteredResults: unfilteredResults,
+            xcresultData: []
         )
     }
     

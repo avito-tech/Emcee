@@ -81,7 +81,8 @@ public final class AppleRunner: Runner {
         if entriesToRun.isEmpty {
             return RunnerRunResult(
                 runnerWasteCollector: runnerWasteCollector,
-                testEntryResults: []
+                testEntryResults: [],
+                xcresultData: []
             )
         }
         
@@ -101,7 +102,7 @@ public final class AppleRunner: Runner {
         
         
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
-        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
+        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory.path)
         runnerWasteCollector.scheduleCollection(path: configuration.simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
@@ -227,6 +228,13 @@ public final class AppleRunner: Runner {
             ]
         )
         
+        let zippedResultBundleOutputPath: AbsolutePath?
+        if configuration.appleTestConfiguration.collectResultBundles {
+            zippedResultBundleOutputPath = try tempFolder.createDirectory(components: []).appending("compressedBundle.zip")
+        } else {
+            zippedResultBundleOutputPath = nil
+        }
+        
         let runningInvocation = try testRunner.prepareTestRun(
             buildArtifacts: configuration.appleTestConfiguration.buildArtifacts,
             developerDirLocator: developerDirLocator,
@@ -234,7 +242,8 @@ public final class AppleRunner: Runner {
             logger: logger,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: zippedResultBundleOutputPath
         ).startExecutingTests()
         
         logger = logger
@@ -246,6 +255,20 @@ public final class AppleRunner: Runner {
             testRunnerRunningInvocationContainer.set(nil)
         }
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
+
+        let xcresultData: [Data]
+        if let zippedResultBundleOutputPath = zippedResultBundleOutputPath {
+            if FileManager().fileExists(
+                atPath: zippedResultBundleOutputPath.pathString
+            ), let zippedResultBundleContents = FileManager().contents(atPath: zippedResultBundleOutputPath.pathString)  {
+                xcresultData = [zippedResultBundleContents]
+            } else {
+                xcresultData = []
+                logger.error("Missing expected zipped result bundle at \(zippedResultBundleOutputPath.pathString)")
+            }
+        } else {
+            xcresultData = []
+        }
         
         let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
@@ -259,7 +282,8 @@ public final class AppleRunner: Runner {
         
         return RunnerRunResult(
             runnerWasteCollector: runnerWasteCollector,
-            testEntryResults: result
+            testEntryResults: result,
+            xcresultData: xcresultData
         )
     }
     
@@ -271,8 +295,10 @@ public final class AppleRunner: Runner {
         let testsWorkingDirectory = try tempFolder.createDirectory(
             components: [RunnerConstants.testsWorkingDir, contextId]
         )
-        let testRunnerWorkingDirectory = try tempFolder.createDirectory(
-            components: [RunnerConstants.runnerWorkingDir, contextId]
+        let testRunnerWorkingDirectory = TestRunnerWorkingDirectory(
+            path: try tempFolder.createDirectory(
+                components: [RunnerConstants.runnerWorkingDir, contextId]
+            )
         )
         
         let additionalEnvironment = testRunner.additionalEnvironment(

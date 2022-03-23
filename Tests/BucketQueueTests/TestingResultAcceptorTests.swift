@@ -68,7 +68,8 @@ final class TestingResultAcceptorTests: XCTestCase {
                     testDestination: runAppleTestsPayload.testDestination,
                     unfilteredResults: runAppleTestsPayload.testEntries.map { testEntry in
                         TestEntryResult.lost(testEntry: testEntry)
-                    }
+                    },
+                    xcresultData: []
                 )
             )
             return TestHistoryTrackerAcceptResult(
