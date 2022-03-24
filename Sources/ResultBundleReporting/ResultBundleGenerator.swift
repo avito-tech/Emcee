@@ -1,3 +1,4 @@
+import FileSystem
 import Foundation
 import PathLib
 import ProcessController
@@ -19,36 +20,38 @@ public final class ResultBundleGenerator {
     private let processControllerProvider: ProcessControllerProvider
     private let tempFolder: TemporaryFolder
     private let logger: ContextualLogger
+    private let fileSystem: FileSystem
+    private let uploadFolder: AbsolutePath
     
     public init(
         processControllerProvider: ProcessControllerProvider,
         tempFolder: TemporaryFolder,
-        logger: ContextualLogger
+        logger: ContextualLogger,
+        fileSystem: FileSystem,
+        uploadFolder: AbsolutePath
     ) {
         self.processControllerProvider = processControllerProvider
         self.tempFolder = tempFolder
         self.logger = logger
+        self.fileSystem = fileSystem
+        self.uploadFolder = uploadFolder
     }
     
     public func writeReport(
-        xcresultData: [Data],
         path: String
     ) throws {
         let temporaryDirectory = try tempFolder.createDirectory(components: [])
         
         var resultBundlePaths: [AbsolutePath] = []
-        try xcresultData.forEach { zippedData in
-            let archiveId = UUID().uuidString
-            let xcresultArchivePath = temporaryDirectory.appending(
-                "ziped_xcresult_\(archiveId).zip"
-            )
-            
-            try zippedData.write(
-                to: xcresultArchivePath.fileUrl
-            )
-            
+        
+        try fileSystem.contentEnumerator(
+            forPath: uploadFolder,
+            style: .shallow
+        ).allPaths().filter {
+            try self.fileSystem.isRegularFile(path: $0)
+        }.forEach { xcresultArchivePath in
             let xcresultContentsPath = temporaryDirectory.appending(
-                "ziped_xcresult_\(archiveId)"
+                "ziped_xcresult_\(UUID().uuidString)"
             )
             try processControllerProvider.createProcessController(
                 subprocess: Subprocess(

@@ -28,7 +28,7 @@ public struct TestArgFileEntry: Codable, Equatable {
     public let testAttachmentLifetime: TestAttachmentLifetime
     public let testsToRun: [TestToRun]
     public let workerCapabilityRequirements: Set<WorkerCapabilityRequirement>
-    public private(set) var collectResultBundles: Bool
+    public private(set) var resultBundlesUrl: URL?
     
     public init(
         buildArtifacts: AppleBuildArtifacts,
@@ -48,7 +48,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         testAttachmentLifetime: TestAttachmentLifetime,
         testsToRun: [TestToRun],
         workerCapabilityRequirements: Set<WorkerCapabilityRequirement>,
-        collectResultBundles: Bool
+        resultBundlesUrl: URL?
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -67,7 +67,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         self.testAttachmentLifetime = testAttachmentLifetime
         self.testsToRun = testsToRun
         self.workerCapabilityRequirements = workerCapabilityRequirements
-        self.collectResultBundles = collectResultBundles
+        self.resultBundlesUrl = resultBundlesUrl
     }
     
     public func with(buildArtifacts: AppleBuildArtifacts) -> Self {
@@ -76,9 +76,9 @@ public struct TestArgFileEntry: Codable, Equatable {
         return result
     }
     
-    public func with(collectResultBundles: Bool) -> Self {
+    public func with(resultBundlesUrl: URL) -> Self {
         var result = self
-        result.collectResultBundles = collectResultBundles
+        result.resultBundlesUrl = resultBundlesUrl
         return result
     }
     
@@ -101,7 +101,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             ),
             testTimeoutConfiguration: testTimeoutConfiguration,
             testAttachmentLifetime: testAttachmentLifetime,
-            collectResultBundles: collectResultBundles
+            resultBundlesUrl: resultBundlesUrl
         )
     }
     
@@ -140,7 +140,7 @@ public struct TestArgFileEntry: Codable, Equatable {
         let testAttachmentLifetime = try container.decodeIfPresent(TestAttachmentLifetime.self, forKey: .testAttachmentLifetime) ?? TestArgFileDefaultValues.testAttachmentLifetime
         let workerCapabilityRequirements = try container.decodeIfPresent(Set<WorkerCapabilityRequirement>.self, forKey: .workerCapabilityRequirements) ??
             TestArgFileDefaultValues.workerCapabilityRequirements
-        let collectResultBundles = try container.decodeIfPresent(Bool.self, forKey: .collectResultBundles) ?? false
+        let resultBundlesUrl = try container.decodeIfPresent(URL.self, forKey: .resultBundlesUrl)
 
         self.init(
             buildArtifacts: buildArtifacts,
@@ -160,7 +160,7 @@ public struct TestArgFileEntry: Codable, Equatable {
             testAttachmentLifetime: testAttachmentLifetime,
             testsToRun: testsToRun,
             workerCapabilityRequirements: workerCapabilityRequirements,
-            collectResultBundles: collectResultBundles
+            resultBundlesUrl: resultBundlesUrl
         )
     }
 }

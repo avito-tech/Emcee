@@ -23,6 +23,9 @@ import ResultBundleReporting
 import SynchronousWaiter
 import UniqueIdentifierGenerator
 
+import PathLib
+import WhatIsMyAddress
+
 final class RunTestsOnRemoteQueueLogic {
     private let di: DI
     
@@ -31,6 +34,8 @@ final class RunTestsOnRemoteQueueLogic {
     init(di: DI) {
         self.di = di
     }
+    
+    let temporaryFolder = try! TemporaryFolder()
     
     func run(
         commonReportOutput: ReportOutput,
@@ -52,6 +57,30 @@ final class RunTestsOnRemoteQueueLogic {
             logger: logger,
             tempFolder: tempFolder
         )
+        
+        let uploadFolder = try temporaryFolder.createDirectory(components: [])
+        let uploadRequestPath: AbsolutePath = "/result-bundle/"
+        
+        let address = try (di.get() as SynchronousMyAddressFetcherProvider).create(
+            queueAddress: runningQueueServerAddress
+        ).fetch(
+            timeout: 10
+        )
+        
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "http"
+        urlComponents.host = address
+        urlComponents.port = try httpRestServer.port().value
+        urlComponents.path = uploadRequestPath.pathString
+        let result = urlComponents.url!
+        
+        if commonReportOutput.resultBundle != nil {
+            httpRestServer.upload(
+                requestPath: uploadRequestPath,
+                uploadFolder: uploadFolder
+            )
+            
+        }
         
         di.set(
             SwifterRemotelyAccessibleUrlForLocalFileProvider(
@@ -85,7 +114,8 @@ final class RunTestsOnRemoteQueueLogic {
             testArgFile: testArgFile,
             buildArtifactsPreparer: buildArtifactsPreparer,
             commonReportOutput: commonReportOutput,
-            logger: logger
+            logger: logger,
+            result: result
         )
         
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
@@ -118,7 +148,9 @@ final class RunTestsOnRemoteQueueLogic {
             resultBundleGenerator: ResultBundleGenerator(
                 processControllerProvider: try di.get(),
                 tempFolder: try TemporaryFolder(),
-                logger: try di.get()
+                logger: try di.get(),
+                fileSystem: try di.get(),
+                uploadFolder: uploadFolder
             )
         )
         try resultOutputGenerator.generateOutput()
@@ -128,7 +160,8 @@ final class RunTestsOnRemoteQueueLogic {
         testArgFile: TestArgFile,
         buildArtifactsPreparer: BuildArtifactsPreparer,
         commonReportOutput: ReportOutput,
-        logger: ContextualLogger
+        logger: ContextualLogger,
+        result: URL
     ) throws -> TestArgFile {
         logger.info("Preparing build artifacts to be accessible by workers...")
         defer {
@@ -142,7 +175,7 @@ final class RunTestsOnRemoteQueueLogic {
                         buildArtifacts: testArgFileEntry.buildArtifacts
                     )
                 ).with(
-                    collectResultBundles: commonReportOutput.resultBundle != nil
+                    resultBundlesUrl: result
                 )
             }
         )

@@ -71,7 +71,7 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1)],
                 workerCapabilityRequirements: [],
-                collectResultBundles: false
+                resultBundlesUrl: nil
             ),
             logger: .noOp
         )
@@ -123,7 +123,7 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(argFileTestToRun1), .testName(argFileTestToRun1)],
                 workerCapabilityRequirements: [],
-                collectResultBundles: false
+                resultBundlesUrl: nil
             ),
             logger: .noOp
         )
@@ -176,7 +176,7 @@ final class ConfiguredTestEntryGeneratorTests: XCTestCase {
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.allDiscoveredTests],
                 workerCapabilityRequirements: [],
-                collectResultBundles: false
+                resultBundlesUrl: nil
             ),
             logger: .noOp
         )

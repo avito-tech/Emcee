@@ -117,7 +117,7 @@ public final class AppleTestConfigurationFixture {
             testExecutionBehavior: testExecutionBehavior,
             testTimeoutConfiguration: testTimeoutConfiguration,
             testAttachmentLifetime: testAttachmentLifetime,
-            collectResultBundles: collectResultBundles
+            resultBundlesUrl: nil
         )
     }
 }

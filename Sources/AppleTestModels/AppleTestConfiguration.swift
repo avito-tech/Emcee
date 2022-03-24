@@ -17,7 +17,7 @@ public final class AppleTestConfiguration: Codable, Hashable {
     public let testExecutionBehavior: TestExecutionBehavior
     public let testTimeoutConfiguration: TestTimeoutConfiguration
     public let testAttachmentLifetime: TestAttachmentLifetime
-    public let collectResultBundles: Bool
+    public let resultBundlesUrl: URL?
     
     public init(
         buildArtifacts: AppleBuildArtifacts,
@@ -30,7 +30,7 @@ public final class AppleTestConfiguration: Codable, Hashable {
         testExecutionBehavior: TestExecutionBehavior,
         testTimeoutConfiguration: TestTimeoutConfiguration,
         testAttachmentLifetime: TestAttachmentLifetime,
-        collectResultBundles: Bool
+        resultBundlesUrl: URL?
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -42,7 +42,7 @@ public final class AppleTestConfiguration: Codable, Hashable {
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testAttachmentLifetime = testAttachmentLifetime
-        self.collectResultBundles = collectResultBundles
+        self.resultBundlesUrl = resultBundlesUrl
     }
     
     public var onDemandSimulatorPoolKey: OnDemandSimulatorPoolKey {
@@ -71,7 +71,7 @@ public final class AppleTestConfiguration: Codable, Hashable {
         hasher.combine(testExecutionBehavior)
         hasher.combine(testTimeoutConfiguration)
         hasher.combine(testAttachmentLifetime)
-        hasher.combine(collectResultBundles)
+        hasher.combine(resultBundlesUrl)
     }
     
     public static func == (lhs: AppleTestConfiguration, rhs: AppleTestConfiguration) -> Bool {
@@ -86,6 +86,6 @@ public final class AppleTestConfiguration: Codable, Hashable {
         && lhs.testExecutionBehavior == rhs.testExecutionBehavior
         && lhs.testTimeoutConfiguration == rhs.testTimeoutConfiguration
         && lhs.testAttachmentLifetime == rhs.testAttachmentLifetime
-        && lhs.collectResultBundles == rhs.collectResultBundles
+        && lhs.resultBundlesUrl == rhs.resultBundlesUrl
     }
 }

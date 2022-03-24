@@ -162,7 +162,7 @@ final class TestEntriesValidatorTests: XCTestCase {
             testAttachmentLifetime: .deleteOnSuccess,
             testsToRun: [.testName(TestName(className: "MyTest", methodName: "test"))],
             workerCapabilityRequirements: [],
-            collectResultBundles: false
+            resultBundlesUrl: nil
         )
     }
 }

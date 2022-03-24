@@ -80,7 +80,6 @@ public final class ReportsGenerator {
     ) {
         do {
             try resultBundleGenerator.writeReport(
-                xcresultData: testingResult.xcresultData,
                 path: path
             )
         } catch {

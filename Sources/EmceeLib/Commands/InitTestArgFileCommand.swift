@@ -126,7 +126,7 @@ public final class InitTestArgFileCommand: Command {
                             constraint: .present
                         )
                     ],
-                    collectResultBundles: false
+                    resultBundlesUrl: nil
                 )
             ],
             prioritizedJob: PrioritizedJob(

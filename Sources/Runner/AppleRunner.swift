@@ -229,7 +229,7 @@ public final class AppleRunner: Runner {
         )
         
         let zippedResultBundleOutputPath: AbsolutePath?
-        if configuration.appleTestConfiguration.collectResultBundles {
+        if (configuration.appleTestConfiguration.resultBundlesUrl != nil) {
             zippedResultBundleOutputPath = try tempFolder.createDirectory(components: []).appending("compressedBundle.zip")
         } else {
             zippedResultBundleOutputPath = nil
@@ -261,7 +261,31 @@ public final class AppleRunner: Runner {
             if FileManager().fileExists(
                 atPath: zippedResultBundleOutputPath.pathString
             ), let zippedResultBundleContents = FileManager().contents(atPath: zippedResultBundleOutputPath.pathString)  {
-                xcresultData = [zippedResultBundleContents]
+                var components = URLComponents(
+                    url: configuration.appleTestConfiguration.resultBundlesUrl!,
+                    resolvingAgainstBaseURL: true
+                )!
+                components.queryItems = [
+                    URLQueryItem(
+                        name: "filename",
+                        value: "\(UUID().uuidString)"
+                    )
+                ]
+                var urlRequest = URLRequest(
+                    url: components.url!
+                )
+                urlRequest.httpMethod = "POST"
+                let sema = DispatchSemaphore(value: 0)
+                URLSession(configuration: .default).uploadTask(
+                    with: urlRequest,
+                    from: zippedResultBundleContents,
+                    completionHandler: { data, response, error in
+                        logger.trace("Bundle upload \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+                        sema.signal()
+                    }
+                ).resume()
+                sema.wait()
+//                xcresultData = [zippedResultBundleContents]
             } else {
                 xcresultData = []
                 logger.error("Missing expected zipped result bundle at \(zippedResultBundleOutputPath.pathString)")
@@ -283,7 +307,7 @@ public final class AppleRunner: Runner {
         return RunnerRunResult(
             runnerWasteCollector: runnerWasteCollector,
             testEntryResults: result,
-            xcresultData: xcresultData
+            xcresultData: []
         )
     }
     

@@ -152,7 +152,7 @@ public final class RunTestsCommand: Command {
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: testsToRun,
                     workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements,
-                    collectResultBundles: false // doesn't matter
+                    resultBundlesUrl: nil // doesn't matter
                 )
             ],
             prioritizedJob: PrioritizedJob(

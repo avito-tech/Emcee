@@ -181,7 +181,7 @@ extension TestArgFile {
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: [],
                     workerCapabilityRequirements: [],
-                    collectResultBundles: false
+                    resultBundlesUrl: nil
                 )
             },
             prioritizedJob: PrioritizedJob(

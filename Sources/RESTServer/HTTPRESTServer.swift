@@ -40,6 +40,29 @@ public final class HTTPRESTServer {
     ) {
         server[requestPath.pathString] = shareFile(localFilePath.pathString)
     }
+    
+    struct EmptyJson: Codable {}
+    
+    public func upload(
+        requestPath: AbsolutePath,
+        uploadFolder: AbsolutePath
+    ) {
+        server.POST[requestPath.pathString] = { r in
+            guard let fileName = r.queryParams.first(where: { $0.0 == "filename" })?.1 else {
+                return .badRequest(.text("Missing filename for result bundle upload"))
+            }
+                
+            do {
+                try Data(r.body).write(
+                    to: uploadFolder.appending(fileName).fileUrl
+                )
+            } catch {
+                return .badRequest(.text("Error in result bundle upload \(error)"))
+            }
+            
+            return .json(response: EmptyJson())
+        }
+    }
 
     private func processRequest<Endpoint: RESTEndpoint>(
         endpoint: Endpoint
