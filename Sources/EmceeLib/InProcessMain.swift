@@ -80,7 +80,10 @@ public final class InProcessMain {
             .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
             .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
             .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
+            .withMetadata(key: .hostname, value: LocalHostDeterminer.currentHostAddress)
+
         di.set(logger)
+        
         
         defer {
             let timeout: TimeInterval = 10
@@ -218,7 +221,7 @@ public final class InProcessMain {
             SynchronousWaiter(),
             for: Waiter.self
         )
-        
+
         di.set(
             AppleRunnerProvider(
                 dateProvider: try di.get(),

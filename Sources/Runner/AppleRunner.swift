@@ -281,6 +281,9 @@ public final class AppleRunner: Runner {
                     from: zippedResultBundleContents,
                     completionHandler: { data, response, error in
                         logger.trace("Bundle upload \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+                        if let error = error {
+                            logger.error("Bundle upload error: \(error)")
+                        }
                         sema.signal()
                     }
                 ).resume()
