@@ -276,7 +276,9 @@ public final class AppleRunner: Runner {
                 )
                 urlRequest.httpMethod = "POST"
                 let sema = DispatchSemaphore(value: 0)
-                URLSession(configuration: .default).uploadTask(
+                let configuation = URLSessionConfiguration.default.copy() as! URLSessionConfiguration
+                configuation.timeoutIntervalForRequest = 600
+                URLSession(configuration: configuation).uploadTask(
                     with: urlRequest,
                     from: zippedResultBundleContents,
                     completionHandler: { data, response, error in
