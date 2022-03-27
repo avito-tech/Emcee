@@ -139,6 +139,9 @@ final class RunTestsOnRemoteQueueLogic {
             version: emceeVersion,
             logger: logger
         )
+        
+        httpRestServer.waitToComplete()
+        
         let resultOutputGenerator = ResultingOutputGenerator(
             logger: logger,
             resourceLocationResolver: try di.get(),

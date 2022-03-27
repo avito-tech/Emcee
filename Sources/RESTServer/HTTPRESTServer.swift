@@ -43,24 +43,37 @@ public final class HTTPRESTServer {
     
     struct EmptyJson: Codable {}
     
+    private let group = DispatchGroup()
     public func upload(
         requestPath: AbsolutePath,
         uploadFolder: AbsolutePath
     ) {
+        let dispatchQueue = DispatchQueue.global(qos: .default)
         server.POST[requestPath.pathString] = { r in
             guard let fileName = r.queryParams.first(where: { $0.0 == "filename" })?.1 else {
                 return .badRequest(.text("Missing filename for result bundle upload"))
             }
+            
+            self.group.enter()
                 
-            do {
-                try Data(r.body).write(
-                    to: uploadFolder.appending(fileName).fileUrl
-                )
-            } catch {
-                return .badRequest(.text("Error in result bundle upload \(error)"))
+            dispatchQueue.async {
+                defer { self.group.leave() }
+                do {
+                    try Data(r.body).write(
+                        to: uploadFolder.appending(fileName).fileUrl
+                    )
+                } catch {
+                    self.logger.error("Error in result bundle upload \(error)")
+                }
             }
             
             return .json(response: EmptyJson())
+        }
+    }
+    
+    public func waitToComplete() {
+        if group.wait(timeout: .now() + 60) == .timedOut {
+            logger.error("Server timeout error")
         }
     }
 
