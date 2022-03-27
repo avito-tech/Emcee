@@ -272,7 +272,8 @@ public final class AppleRunner: Runner {
                     )
                 ]
                 var urlRequest = URLRequest(
-                    url: components.url!
+                    url: components.url!,
+                    timeoutInterval: 600
                 )
                 urlRequest.httpMethod = "POST"
                 let sema = DispatchSemaphore(value: 0)
