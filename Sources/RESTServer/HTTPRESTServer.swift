@@ -40,6 +40,41 @@ public final class HTTPRESTServer {
     ) {
         server[requestPath.pathString] = shareFile(localFilePath.pathString)
     }
+    
+    private let filesUploadGroup = DispatchGroup()
+    public func addUploadPath(
+        requestPath: AbsolutePath,
+        uploadFolder: AbsolutePath
+    ) {
+        server.POST[requestPath.pathString] = { request in
+            guard let fileName = request.queryParams.first(where: { $0.0 == "filename" })?.1 else {
+                return .badRequest(.text("Missing query parameter filename for file upload"))
+            }
+            
+            self.filesUploadGroup.enter()
+                
+            DispatchQueue.global(qos: .default).async {
+                defer { self.filesUploadGroup.leave() }
+                do {
+                    try Data(request.body).write(
+                        to: uploadFolder.appending(fileName).fileUrl,
+                        options: [.atomic]
+                    )
+                } catch {
+                    self.logger.error("Error in file upload for request path \(requestPath): \(error)")
+                }
+            }
+            
+            struct UploadResponse: Codable {}
+            return .json(response: UploadResponse())
+        }
+    }
+    
+    public func waitForUploadsToComplete() {
+        if filesUploadGroup.wait(timeout: .now() + 60) == .timedOut {
+            logger.error("Upload timeout error")
+        }
+    }
 
     private func processRequest<Endpoint: RESTEndpoint>(
         endpoint: Endpoint
