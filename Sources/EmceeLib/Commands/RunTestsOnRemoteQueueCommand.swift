@@ -22,6 +22,7 @@ public final class RunTestsOnRemoteQueueCommand: Command {
         ArgumentDescriptions.testArgFile.asRequired,
         ArgumentDescriptions.trace.asOptional,
         ArgumentDescriptions.hostname.asOptional,
+        ArgumentDescriptions.resultBundle.asOptional,
     ]
     
     private let di: DI
@@ -43,7 +44,8 @@ public final class RunTestsOnRemoteQueueCommand: Command {
 
         let commonReportOutput = ReportOutput(
             junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
-            tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
+            tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name),
+            resultBundle: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.resultBundle.name)
         )
         let emceeVersion: Version = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.emceeVersion.name) ?? EmceeVersion.version
         

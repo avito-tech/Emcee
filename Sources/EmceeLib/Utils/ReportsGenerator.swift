@@ -3,25 +3,32 @@ import CommonTestModels
 import Foundation
 import JunitReporting
 import EmceeLogging
+import PathLib
+import ProcessController
 import ResourceLocationResolver
+import ResultBundleReporting
 import TestArgFile
+import Tmp
 
 public final class ReportsGenerator {
     private let testingResult: CombinedTestingResults
     private let reportOutput: ReportOutput
     private let logger: ContextualLogger
     private let resourceLocationResolver: ResourceLocationResolver
+    private let resultBundleGenerator: ResultBundleGenerator
     
     public init(
         logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         testingResult: CombinedTestingResults,
-        reportOutput: ReportOutput
+        reportOutput: ReportOutput,
+        resultBundleGenerator: ResultBundleGenerator
     ) {
         self.logger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.testingResult = testingResult
         self.reportOutput = reportOutput
+        self.resultBundleGenerator = resultBundleGenerator
     }
     
     public func prepareReports() throws {
@@ -43,7 +50,29 @@ public final class ReportsGenerator {
             )
         }
         
+        if let resultBundle = reportOutput.resultBundle {
+            prepareResultBundleReport(
+                testingResult: testingResult,
+                path: try resourceLocationResolver.resolvePath(
+                    resourceLocation: .localFilePath(resultBundle)
+                ).directlyAccessibleResourcePath().pathString
+            )
+        }
+        
         prepareConsoleReport(testingResult: testingResult)
+    }
+    
+    private func prepareResultBundleReport(
+        testingResult: CombinedTestingResults,
+        path: String
+    ) {
+        do {
+            try resultBundleGenerator.writeReport(
+                path: path
+            )
+        } catch {
+            logger.error("Failed to write out result bundle: \(error)")
+        }
     }
     
     private func prepareJunitReport(testingResult: CombinedTestingResults, path: String) throws {

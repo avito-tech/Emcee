@@ -156,7 +156,8 @@ final class TestArgFileEntryTests: XCTestCase {
                 ),
                 testAttachmentLifetime: .deleteOnSuccess,
                 testsToRun: [.testName(TestName(className: "ClassName", methodName: "testMethod"))],
-                workerCapabilityRequirements: []
+                workerCapabilityRequirements: [],
+                resultBundlesUploadUrl: nil
             )
         )
     }
@@ -230,7 +231,8 @@ final class TestArgFileEntryTests: XCTestCase {
                     .testName(TestName(className: "ClassName", methodName: "testMethod")),
                     .testName(TestName(className: "ClassName", methodName: "testMethod")),
                 ],
-                workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements
+                workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements,
+                resultBundlesUploadUrl: nil
             )
         )
     }

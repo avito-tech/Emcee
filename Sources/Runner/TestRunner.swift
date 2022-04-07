@@ -21,7 +21,7 @@ public protocol TestRunnerInvocation {
 
 public protocol TestRunner {
     func additionalEnvironment(
-        testRunnerWorkingDirectory: AbsolutePath
+        testRunnerWorkingDirectory: TestRunnerWorkingDirectory
     ) -> [String: String]
     
     func prepareTestRun(
@@ -31,6 +31,7 @@ public protocol TestRunner {
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
         testContext: AppleTestContext,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        zippedResultBundleOutputPath: AbsolutePath?
     ) throws -> TestRunnerInvocation
 }

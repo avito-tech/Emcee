@@ -180,7 +180,8 @@ extension TestArgFile {
                     testTimeoutConfiguration: TestArgFileDefaultValues.testTimeoutConfiguration,
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: [],
-                    workerCapabilityRequirements: []
+                    workerCapabilityRequirements: [],
+                    resultBundlesUploadUrl: nil
                 )
             },
             prioritizedJob: PrioritizedJob(

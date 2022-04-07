@@ -30,7 +30,8 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
         testContext: AppleTestContext,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        zippedResultBundleOutputPath: AbsolutePath?
     ) throws -> TestRunnerInvocation {
         do {
             return try testRunner.prepareTestRun(
@@ -40,7 +41,8 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
                 logger: logger,
                 specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream
+                testRunnerStream: testRunnerStream,
+                zippedResultBundleOutputPath: zippedResultBundleOutputPath
             )
         } catch {
             return generateFailureResults(
@@ -51,7 +53,7 @@ public final class FailureReportingTestRunnerProxy: TestRunner {
         }
     }
     
-    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+    public func additionalEnvironment(testRunnerWorkingDirectory: TestRunnerWorkingDirectory) -> [String: String] {
         return testRunner.additionalEnvironment(testRunnerWorkingDirectory: testRunnerWorkingDirectory)
     }
     

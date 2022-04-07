@@ -105,6 +105,7 @@ let package = Package(
                 .product(name: "Statsd", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "XcodebuildTestRunnerConstants",
+                "Zip",
             ],
             path: "Sources/AppleTools"
         ),
@@ -149,6 +150,7 @@ let package = Package(
                 .product(name: "Statsd", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
+                "ZipTestHelpers",
             ],
             path: "Tests/AppleToolsTests"
         ),
@@ -633,6 +635,7 @@ let package = Package(
                 "RequestSender",
                 "ResourceLocation",
                 "ResourceLocationResolver",
+                "ResultBundleReporting",
                 "Runner",
                 "SSHDeployer",
                 "ScheduleStrategy",
@@ -1582,6 +1585,18 @@ let package = Package(
             path: "Tests/ResourceLocationTests"
         ),
         .target(
+            name: "ResultBundleReporting",
+            dependencies: [
+                "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "ProcessController", package: "CommandLineToolkit"),
+                "ResourceLocationResolver",
+                .product(name: "Tmp", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/ResultBundleReporting"
+        ),
+        .target(
             name: "ResultStream",
             dependencies: [
                 "CommonTestModels",
@@ -1725,6 +1740,7 @@ let package = Package(
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
+                "ZipTestHelpers",
             ],
             path: "Tests/RunnerTests"
         ),
@@ -2064,6 +2080,7 @@ let package = Package(
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "UniqueIdentifierGenerator",
                 "UniqueIdentifierGeneratorTestHelpers",
+                "ZipTestHelpers",
             ],
             path: "Tests/TestDiscoveryTests"
         ),

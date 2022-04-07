@@ -38,6 +38,7 @@ public final class AppleRunner: Runner {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
+    private let resultBundleUploader: ResultBundleUploader
         
     public init(
         dateProvider: DateProvider,
@@ -53,7 +54,8 @@ public final class AppleRunner: Runner {
         testTimeoutCheckInterval: DispatchTimeInterval = .seconds(1),
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
-        waiter: Waiter
+        waiter: Waiter,
+        resultBundleUploader: ResultBundleUploader
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -69,6 +71,7 @@ public final class AppleRunner: Runner {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
+        self.resultBundleUploader = resultBundleUploader
     }
     
     /// Runs the given tests once without any attempts to restart the failed or crashed tests.
@@ -101,7 +104,7 @@ public final class AppleRunner: Runner {
         
         
         runnerWasteCollector.scheduleCollection(path: testContext.testsWorkingDirectory)
-        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory)
+        runnerWasteCollector.scheduleCollection(path: testContext.testRunnerWorkingDirectory.path)
         runnerWasteCollector.scheduleCollection(path: configuration.simulator.path.appending(relativePath: "data/Library/Caches/com.apple.containermanagerd/Dead"))
         
         let runnerResultsPreparer = RunnerResultsPreparerImpl(
@@ -227,6 +230,24 @@ public final class AppleRunner: Runner {
             ]
         )
         
+        let zippedResultBundleOutputPath: AbsolutePath?
+        let uploadCommand: (() -> ())?
+        if let resultBundlesUploadUrl = configuration.appleTestConfiguration.resultBundlesUploadUrl {
+            let zippedResultBundleOutput = try tempFolder.createDirectory(
+                components: []
+            ).appending("compressedBundle.zip")
+            zippedResultBundleOutputPath = zippedResultBundleOutput
+            uploadCommand = { [resultBundleUploader] in
+                resultBundleUploader.uploadResultBundle(
+                    zippedResultBundleOutputPath: zippedResultBundleOutput,
+                    resultBundlesUploadUrl: resultBundlesUploadUrl
+                )
+            }
+        } else {
+            zippedResultBundleOutputPath = nil
+            uploadCommand = nil
+        }
+        
         let runningInvocation = try testRunner.prepareTestRun(
             buildArtifacts: configuration.appleTestConfiguration.buildArtifacts,
             developerDirLocator: developerDirLocator,
@@ -234,7 +255,8 @@ public final class AppleRunner: Runner {
             logger: logger,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: zippedResultBundleOutputPath
         ).startExecutingTests()
         
         logger = logger
@@ -246,6 +268,8 @@ public final class AppleRunner: Runner {
             testRunnerRunningInvocationContainer.set(nil)
         }
         try streamClosedCallback.wait(timeout: .infinity, description: "Test Runner Stream Close")
+
+        uploadCommand?()
         
         let result = runnerResultsPreparer.prepareResults(
             collectedTestStoppedEvents: collectedTestStoppedEvents,
@@ -271,8 +295,10 @@ public final class AppleRunner: Runner {
         let testsWorkingDirectory = try tempFolder.createDirectory(
             components: [RunnerConstants.testsWorkingDir, contextId]
         )
-        let testRunnerWorkingDirectory = try tempFolder.createDirectory(
-            components: [RunnerConstants.runnerWorkingDir, contextId]
+        let testRunnerWorkingDirectory = TestRunnerWorkingDirectory(
+            path: try tempFolder.createDirectory(
+                components: [RunnerConstants.runnerWorkingDir, contextId]
+            )
         )
         
         let additionalEnvironment = testRunner.additionalEnvironment(

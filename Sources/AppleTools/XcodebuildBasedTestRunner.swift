@@ -17,6 +17,7 @@ import RunnerModels
 import Tmp
 import PathLib
 import XcodebuildTestRunnerConstants
+import Zip
 
 public final class XcodebuildBasedTestRunner: TestRunner {
     private let dateProvider: DateProvider
@@ -26,6 +27,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
     private let resourceLocationResolver: ResourceLocationResolver
     private let version: Version
     private let xcResultTool: XcResultTool
+    private let zipCompressor: ZipCompressor
     
     public init(
         dateProvider: DateProvider,
@@ -34,7 +36,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         version: Version,
-        xcResultTool: XcResultTool
+        xcResultTool: XcResultTool,
+        zipCompressor: ZipCompressor
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
@@ -43,6 +46,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         self.resourceLocationResolver = resourceLocationResolver
         self.version = version
         self.xcResultTool = xcResultTool
+        self.zipCompressor = zipCompressor
     }
     
     public func prepareTestRun(
@@ -52,19 +56,18 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         logger: ContextualLogger,
         specificMetricRecorder: SpecificMetricRecorder,
         testContext: AppleTestContext,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        zippedResultBundleOutputPath: AbsolutePath?
     ) throws -> TestRunnerInvocation {
-        let resultStreamFile = testContext.testRunnerWorkingDirectory.appending("result_stream.json")
+        let resultStreamFile = testContext.testRunnerWorkingDirectory.resultStreamPath
         try fileSystem.createFile(path: resultStreamFile, data: nil)
         
-        let xcresultBundlePath = self.xcresultBundlePath(
-            testRunnerWorkingDirectory: testContext.testRunnerWorkingDirectory
-        )
+        let xcresultBundlePath = testContext.testRunnerWorkingDirectory.xcresultBundlePath
         
         let xcTestRunFile = XcTestRunFileArgument(
             buildArtifacts: buildArtifacts,
             entriesToRun: entriesToRun,
-            path: testContext.testRunnerWorkingDirectory.appending("testrun.xctestrun"),
+            path: testContext.testRunnerWorkingDirectory.xctestRunPath,
             resourceLocationResolver: resourceLocationResolver,
             testContext: testContext,
             testingEnvironment: XcTestRunTestingEnvironment(
@@ -78,7 +81,7 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     "/usr/bin/xcrun",
                     "xcodebuild",
                     "-destination", XcodebuildSimulatorDestinationArgument(destinationId: testContext.simulator.udid),
-                    "-derivedDataPath", testContext.testRunnerWorkingDirectory.appending("derivedData"),
+                    "-derivedDataPath", testContext.testRunnerWorkingDirectory.derivedDataPath,
                     "-resultBundlePath", xcresultBundlePath,
                     "-resultStreamPath", resultStreamFile,
                     "-xctestrun", xcTestRunFile,
@@ -124,7 +127,8 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                     logger: logger,
                     path: xcresultBundlePath,
                     specificMetricRecorder: specificMetricRecorder,
-                    testRunnerStream: testRunnerStream
+                    testRunnerStream: testRunnerStream,
+                    zippedResultBundleOutputPath: zippedResultBundleOutputPath
                 )
             }
 
@@ -136,21 +140,18 @@ public final class XcodebuildBasedTestRunner: TestRunner {
         )
     }
     
-    public func additionalEnvironment(testRunnerWorkingDirectory: AbsolutePath) -> [String: String] {
+    public func additionalEnvironment(testRunnerWorkingDirectory: TestRunnerWorkingDirectory) -> [String: String] {
         return [
-            XcodebuildTestRunnerConstants.envXcresultPath: xcresultBundlePath(testRunnerWorkingDirectory: testRunnerWorkingDirectory).pathString
+            XcodebuildTestRunnerConstants.envXcresultPath: testRunnerWorkingDirectory.xcresultBundlePath.pathString
         ]
-    }
-    
-    private func xcresultBundlePath(testRunnerWorkingDirectory: AbsolutePath) -> AbsolutePath {
-        return testRunnerWorkingDirectory.appending("resultBundle.xcresult")
     }
     
     private func readResultBundle(
         logger: ContextualLogger,
         path: AbsolutePath,
         specificMetricRecorder: SpecificMetricRecorder,
-        testRunnerStream: TestRunnerStream
+        testRunnerStream: TestRunnerStream,
+        zippedResultBundleOutputPath: AbsolutePath?
     ) {
         do {
             let actionsInvocationRecord = try xcResultTool.get(path: path)
@@ -158,6 +159,20 @@ public final class XcodebuildBasedTestRunner: TestRunner {
                 testRunnerStream.caughtException(
                     testException: testFailureIssueSummary.testException()
                 )
+            }
+            
+            if let zippedResultBundleOutputPath = zippedResultBundleOutputPath {
+                do {
+                    _ = try zipCompressor.createArchive(
+                        archivePath: zippedResultBundleOutputPath,
+                        workingDirectory: path.removingLastComponent,
+                        contentsToCompress: RelativePath(
+                            components: [path.lastComponent]
+                        )
+                    )
+                } catch {
+                    logger.error("Error zipping xcresult bundle at \(path): \(error)")
+                }
             }
         } catch {
             logger.error("Error parsing xcresult bundle at \(path): \(error)")

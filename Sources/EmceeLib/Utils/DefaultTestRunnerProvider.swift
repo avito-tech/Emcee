@@ -8,6 +8,7 @@ import ProcessController
 import QueueModels
 import ResourceLocationResolver
 import Runner
+import Zip
 
 public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let dateProvider: DateProvider
@@ -17,6 +18,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
     private let resourceLocationResolver: ResourceLocationResolver
     private let version: Version
     private let xcResultTool: XcResultTool
+    private let zipCompressor: ZipCompressor
 
     public init(
         dateProvider: DateProvider,
@@ -25,7 +27,8 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         processControllerProvider: ProcessControllerProvider,
         resourceLocationResolver: ResourceLocationResolver,
         version: Version,
-        xcResultTool: XcResultTool
+        xcResultTool: XcResultTool,
+        zipCompressor: ZipCompressor
     ) {
         self.dateProvider = dateProvider
         self.fileSystem = fileSystem
@@ -34,6 +37,7 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
         self.resourceLocationResolver = resourceLocationResolver
         self.version = version
         self.xcResultTool = xcResultTool
+        self.zipCompressor = zipCompressor
     }
 
     public func testRunner() throws -> TestRunner {
@@ -44,7 +48,8 @@ public final class DefaultTestRunnerProvider: TestRunnerProvider {
             processControllerProvider: processControllerProvider,
             resourceLocationResolver: resourceLocationResolver,
             version: version,
-            xcResultTool: xcResultTool
+            xcResultTool: xcResultTool,
+            zipCompressor: zipCompressor
         )
     }
 }
