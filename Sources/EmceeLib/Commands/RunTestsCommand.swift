@@ -36,6 +36,7 @@ public final class RunTestsCommand: Command {
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.trace.asOptional,
         ArgumentDescriptions.hostname.asOptional,
+        ArgumentDescriptions.resultBundle.asOptional,
     ]
     
     private let di: DI
@@ -150,7 +151,8 @@ public final class RunTestsCommand: Command {
                     testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: testTimeout, testRunnerMaximumSilenceDuration: testTimeout),
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,
                     testsToRun: testsToRun,
-                    workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements
+                    workerCapabilityRequirements: TestArgFileDefaultValues.workerCapabilityRequirements,
+                    resultBundlesUploadUrl: nil
                 )
             ],
             prioritizedJob: PrioritizedJob(
@@ -177,7 +179,8 @@ public final class RunTestsCommand: Command {
         try RunTestsOnRemoteQueueLogic(di: di).run(
             commonReportOutput: ReportOutput(
                 junit: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.junit.name),
-                tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name)
+                tracingReport: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.trace.name),
+                resultBundle: try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.resultBundle.name)
             ),
             emceeVersion: EmceeVersion.version,
             hostname: hostname,

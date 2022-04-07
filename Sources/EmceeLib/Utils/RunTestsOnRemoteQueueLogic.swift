@@ -8,6 +8,7 @@ import MetricsExtensions
 import TestArgFile
 import TestDiscovery
 import Tmp
+import PathLib
 import QueueClient
 import QueueCommunication
 import QueueModels
@@ -19,8 +20,10 @@ import SocketModels
 import SignalHandling
 import SimulatorPool
 import RequestSender
+import ResultBundleReporting
 import SynchronousWaiter
 import UniqueIdentifierGenerator
+import WhatIsMyAddress
 
 final class RunTestsOnRemoteQueueLogic {
     private let di: DI
@@ -50,6 +53,15 @@ final class RunTestsOnRemoteQueueLogic {
             queueServerConfiguration: queueServerConfiguration,
             logger: logger,
             tempFolder: tempFolder
+        )
+        
+        let uploadFolder = try tempFolder.createDirectory(components: [])
+        let resultBundlesUploadUrl = try startResultBundleUploadEndpointIfNeeded(
+            httpRestServer: httpRestServer,
+            tempFolder: tempFolder,
+            runningQueueServerAddress: runningQueueServerAddress,
+            commonReportOutput: commonReportOutput,
+            uploadFolder: uploadFolder
         )
         
         di.set(
@@ -83,7 +95,9 @@ final class RunTestsOnRemoteQueueLogic {
         let testArgFile = try preprocessTestArgFile(
             testArgFile: testArgFile,
             buildArtifactsPreparer: buildArtifactsPreparer,
-            logger: logger
+            commonReportOutput: commonReportOutput,
+            logger: logger,
+            resultBundlesUploadUrl: resultBundlesUploadUrl
         )
         
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
@@ -107,12 +121,23 @@ final class RunTestsOnRemoteQueueLogic {
             version: emceeVersion,
             logger: logger
         )
+        
+        httpRestServer.waitForUploadsToComplete()
+        
         let resultOutputGenerator = ResultingOutputGenerator(
             logger: logger,
             resourceLocationResolver: try di.get(),
             bucketResults: jobResults.bucketResults,
             commonReportOutput: commonReportOutput,
-            testDestinationConfigurations: testArgFile.testDestinationConfigurations
+            testDestinationConfigurations: testArgFile.testDestinationConfigurations,
+            resultBundleGenerator: ResultBundleGenerator(
+                processControllerProvider: try di.get(),
+                tempFolder: try TemporaryFolder(),
+                logger: try di.get(),
+                fileSystem: try di.get(),
+                resourceLocationResolver: try di.get(),
+                uploadFolder: uploadFolder
+            )
         )
         try resultOutputGenerator.generateOutput()
     }
@@ -120,7 +145,9 @@ final class RunTestsOnRemoteQueueLogic {
     private func preprocessTestArgFile(
         testArgFile: TestArgFile,
         buildArtifactsPreparer: BuildArtifactsPreparer,
-        logger: ContextualLogger
+        commonReportOutput: ReportOutput,
+        logger: ContextualLogger,
+        resultBundlesUploadUrl: URL?
     ) throws -> TestArgFile {
         logger.info("Preparing build artifacts to be accessible by workers...")
         defer {
@@ -133,6 +160,8 @@ final class RunTestsOnRemoteQueueLogic {
                     buildArtifacts: try buildArtifactsPreparer.prepare(
                         buildArtifacts: testArgFileEntry.buildArtifacts
                     )
+                ).with(
+                    resultBundlesUploadUrl: resultBundlesUploadUrl
                 )
             }
         )
@@ -251,7 +280,8 @@ final class RunTestsOnRemoteQueueLogic {
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
                 version: version,
-                waiter: try di.get()
+                waiter: try di.get(),
+                resultBundleUploader: try di.get()
             ),
             for: TestDiscoveryQuerier.self
         )
@@ -352,6 +382,42 @@ final class RunTestsOnRemoteQueueLogic {
         } catch {
             logger.warning("Failed to delete job")
         }
+    }
+    
+    private func startResultBundleUploadEndpointIfNeeded(
+        httpRestServer: HTTPRESTServer,
+        tempFolder: TemporaryFolder,
+        runningQueueServerAddress: SocketAddress,
+        commonReportOutput: ReportOutput,
+        uploadFolder: AbsolutePath
+    ) throws -> URL? {
+        guard commonReportOutput.resultBundle != nil else {
+            return nil
+        }
+        
+        let uploadRequestPath: AbsolutePath = "/result-bundle/"
+        
+        let address = try (di.get() as SynchronousMyAddressFetcherProvider).create(
+            queueAddress: runningQueueServerAddress
+        ).fetch(
+            timeout: 10
+        )
+        
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "http"
+        urlComponents.host = address
+        urlComponents.port = try httpRestServer.port().value
+        urlComponents.path = uploadRequestPath.pathString
+        guard let resultBundlesUploadUrl = urlComponents.url else {
+            return nil
+        }
+        
+        httpRestServer.addUploadPath(
+            requestPath: uploadRequestPath,
+            uploadFolder: uploadFolder
+        )
+        
+        return resultBundlesUploadUrl
     }
 }
 

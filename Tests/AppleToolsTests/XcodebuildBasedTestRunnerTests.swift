@@ -27,6 +27,7 @@ import Statsd
 import TestHelpers
 import Tmp
 import XCTest
+import ZipTestHelpers
 
 final class XcodebuildBasedTestRunnerTests: XCTestCase {
     private lazy var fileSystem = FakeFileSystem(rootPath: tempFolder.absolutePath)
@@ -49,7 +50,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         processControllerProvider: processControllerProvider,
         resourceLocationResolver: resourceLocationResolver,
         version: version,
-        xcResultTool: xcResultTool
+        xcResultTool: xcResultTool,
+        zipCompressor: FakeZipCompressor()
     )
     private lazy var specificMetricRecorder = SpecificMetricRecorderWrapper(NoOpMetricRecorder())
     private lazy var developerDirLocator = FakeDeveloperDirLocator(
@@ -107,9 +109,11 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         xcTestBundle: xcTestBundle
     )
     
-    private var testRunnerWorkingDirectory: AbsolutePath {
+    private var testRunnerWorkingDirectory: TestRunnerWorkingDirectory {
         assertDoesNotThrow {
-            try tempFolder.createDirectory(components: [RunnerConstants.runnerWorkingDir, contextId])
+            try TestRunnerWorkingDirectory(
+                path: tempFolder.createDirectory(components: [RunnerConstants.runnerWorkingDir, contextId])
+            )
         }
     }
     
@@ -193,7 +197,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream
+                testRunnerStream: testRunnerStream,
+                zippedResultBundleOutputPath: nil
             )
             try invocation.startExecutingTests().wait()
         }
@@ -261,7 +266,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream
+                testRunnerStream: testRunnerStream,
+                zippedResultBundleOutputPath: nil
             )
             try invocation.startExecutingTests().wait()
         }
@@ -332,7 +338,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 logger: .noOp,
                 specificMetricRecorder: specificMetricRecorder,
                 testContext: testContext,
-                testRunnerStream: testRunnerStream
+                testRunnerStream: testRunnerStream,
+                zippedResultBundleOutputPath: nil
             )
             try invocation.startExecutingTests().wait()
         }
@@ -352,7 +359,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: nil
         )
         _ = try invocation.startExecutingTests()
         
@@ -371,7 +379,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: nil
         )
         
         let streamIsClosed = XCTestExpectation(description: "Stream closed")
@@ -409,7 +418,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: nil
         )
         let runningInvocation = try invocation.startExecutingTests()
         
@@ -476,7 +486,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: nil
         )
         
         let streamIsClosed = XCTestExpectation(description: "Stream closed")
@@ -522,7 +533,8 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
             logger: .noOp,
             specificMetricRecorder: specificMetricRecorder,
             testContext: testContext,
-            testRunnerStream: testRunnerStream
+            testRunnerStream: testRunnerStream,
+            zippedResultBundleOutputPath: nil
         )
         
         let streamIsClosed = XCTestExpectation(description: "Stream closed")
@@ -536,7 +548,7 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
         } equals: {
             TestException(
                 reason: "Error parsing xcresult bundle: ErrorForTestingPurposes Some error from xcresult tool, e.g. bundle is corrupted",
-                filePathInProject: testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
+                filePathInProject: testRunnerWorkingDirectory.path.appending("resultBundle.xcresult").pathString,
                 lineNumber: 0,
                 relatedTestName: nil
             )
@@ -556,9 +568,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
     }
     
     private func pathToXctestrunFile() throws -> AbsolutePath {
-        let contents = try FileManager().contentsOfDirectory(atPath: testRunnerWorkingDirectory.pathString)
+        let contents = try FileManager().contentsOfDirectory(atPath: testRunnerWorkingDirectory.path.pathString)
         let xctestrunFileName: String = contents.first(where: { $0.hasSuffix("xctestrun") }) ?? "NOT_FOUND"
-        return testRunnerWorkingDirectory.appending(xctestrunFileName)
+        return testRunnerWorkingDirectory.path.appending(xctestrunFileName)
     }
     
     private func createdXcTestRun() throws -> XcTestRun {
@@ -577,9 +589,9 @@ final class XcodebuildBasedTestRunnerTests: XCTestCase {
                 "/usr/bin/xcrun",
                 "xcodebuild",
                 "-destination", "platform=iOS Simulator,id=" + testContext.simulator.udid.value,
-                "-derivedDataPath", testRunnerWorkingDirectory.appending("derivedData").pathString,
-                "-resultBundlePath", testRunnerWorkingDirectory.appending("resultBundle.xcresult").pathString,
-                "-resultStreamPath", testRunnerWorkingDirectory.appending("result_stream.json").pathString,
+                "-derivedDataPath", testRunnerWorkingDirectory.path.appending("derivedData").pathString,
+                "-resultBundlePath", testRunnerWorkingDirectory.path.appending("resultBundle.xcresult").pathString,
+                "-resultStreamPath", testRunnerWorkingDirectory.path.appending("result_stream.json").pathString,
                 "-xctestrun", try pathToXctestrunFile().pathString,
                 "-parallel-testing-enabled", "NO",
                 "test-without-building"

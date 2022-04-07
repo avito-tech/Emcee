@@ -212,7 +212,8 @@ public final class Scheduler {
             testRunnerProvider: try di.get(),
             uniqueIdentifierGenerator: try di.get(),
             version: version,
-            waiter: try di.get()
+            waiter: try di.get(),
+            resultBundleUploader: try di.get()
         )
 
         let runnerResult = try runner.runOnce(

@@ -20,6 +20,8 @@ import TestDiscovery
 import TestHelpers
 import UniqueIdentifierGeneratorTestHelpers
 import XCTest
+import ZipTestHelpers
+// TODO: check imports
 
 final class TestDiscoveryQuerierTests: XCTestCase {
     lazy var developerDirLocator = FakeDeveloperDirLocator(result: tempFolder.absolutePath)
@@ -215,7 +217,8 @@ final class TestDiscoveryQuerierTests: XCTestCase {
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: fixedValueUniqueIdentifierGenerator,
             version: version,
-            waiter: SynchronousWaiter()
+            waiter: SynchronousWaiter(),
+            resultBundleUploader: FakeResultBundleUploader()
         )
     }
     

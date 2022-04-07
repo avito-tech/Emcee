@@ -24,6 +24,7 @@ public final class AppleRunnerProvider: RunnerProvider {
     private let testRunnerProvider: TestRunnerProvider
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let waiter: Waiter
+    private let resultBundleUploader: ResultBundleUploader
     
     public init(
         dateProvider: DateProvider,
@@ -35,7 +36,8 @@ public final class AppleRunnerProvider: RunnerProvider {
         runnerWasteCollectorProvider: RunnerWasteCollectorProvider,
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
-        waiter: Waiter
+        waiter: Waiter,
+        resultBundleUploader: ResultBundleUploader
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -47,6 +49,7 @@ public final class AppleRunnerProvider: RunnerProvider {
         self.testRunnerProvider = testRunnerProvider
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.waiter = waiter
+        self.resultBundleUploader = resultBundleUploader
     }
     
     public func create(
@@ -67,7 +70,8 @@ public final class AppleRunnerProvider: RunnerProvider {
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
-            waiter: waiter
+            waiter: waiter,
+            resultBundleUploader: resultBundleUploader
         )
     }
 }

@@ -195,6 +195,13 @@ public final class InProcessMain {
         )
         
         di.set(
+            ZipCompressorImpl(
+                processControllerProvider: try di.get()
+            ),
+            for: ZipCompressor.self
+        )
+        
+        di.set(
             DefaultTestRunnerProvider(
                 dateProvider: try di.get(),
                 fileSystem: try di.get(),
@@ -202,7 +209,8 @@ public final class InProcessMain {
                 processControllerProvider: try di.get(),
                 resourceLocationResolver: try di.get(),
                 version: EmceeVersion.version,
-                xcResultTool: try di.get()
+                xcResultTool: try di.get(),
+                zipCompressor: try di.get()
             ),
             for: TestRunnerProvider.self
         )
@@ -211,12 +219,15 @@ public final class InProcessMain {
             SynchronousWaiter(),
             for: Waiter.self
         )
+        
         di.set(
-            ZipCompressorImpl(
-                processControllerProvider: try di.get()
+            ResultBundlerUploaderImpl(
+                fileSystem: try di.get(),
+                logger: try di.get()
             ),
-            for: ZipCompressor.self
+            for: ResultBundleUploader.self
         )
+
         di.set(
             AppleRunnerProvider(
                 dateProvider: try di.get(),
@@ -228,7 +239,8 @@ public final class InProcessMain {
                 runnerWasteCollectorProvider: try di.get(),
                 testRunnerProvider: try di.get(),
                 uniqueIdentifierGenerator: try di.get(),
-                waiter: try di.get()
+                waiter: try di.get(),
+                resultBundleUploader: try di.get()
             ),
             for: AppleRunnerProvider.self
         )

@@ -37,6 +37,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
     private let uniqueIdentifierGenerator: UniqueIdentifierGenerator
     private let version: Version
     private let waiter: Waiter
+    private let resultBundleUploader: ResultBundleUploader
     
     public init(
         dateProvider: DateProvider,
@@ -54,7 +55,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         testRunnerProvider: TestRunnerProvider,
         uniqueIdentifierGenerator: UniqueIdentifierGenerator,
         version: Version,
-        waiter: Waiter
+        waiter: Waiter,
+        resultBundleUploader: ResultBundleUploader
     ) {
         self.dateProvider = dateProvider
         self.developerDirLocator = developerDirLocator
@@ -72,6 +74,7 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
         self.uniqueIdentifierGenerator = uniqueIdentifierGenerator
         self.version = version
         self.waiter = waiter
+        self.resultBundleUploader = resultBundleUploader
     }
     
     public func query(configuration: TestDiscoveryConfiguration) throws -> TestDiscoveryResult {
@@ -312,7 +315,8 @@ public final class TestDiscoveryQuerierImpl: TestDiscoveryQuerier {
             version: version,
             waiter: waiter,
             globalMetricRecorder: globalMetricRecorder,
-            specificMetricRecorder: specificMetricRecorder
+            specificMetricRecorder: specificMetricRecorder,
+            resultBundleUploader: resultBundleUploader
         )
     }
 }

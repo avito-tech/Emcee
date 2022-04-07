@@ -1,9 +1,11 @@
 import CommonTestModels
 import EmceeLogging
 import Foundation
+import ProcessController
 import QueueModels
 import ResourceLocationResolver
 import TestArgFile
+import ResultBundleReporting
 
 public final class ResultingOutputGenerator {
     private let logger: ContextualLogger
@@ -11,19 +13,22 @@ public final class ResultingOutputGenerator {
     private let bucketResults: [BucketResult]
     private let commonReportOutput: ReportOutput
     private let testDestinationConfigurations: [TestDestinationConfiguration]
+    private let resultBundleGenerator: ResultBundleGenerator
 
     public init(
         logger: ContextualLogger,
         resourceLocationResolver: ResourceLocationResolver,
         bucketResults: [BucketResult],
         commonReportOutput: ReportOutput,
-        testDestinationConfigurations: [TestDestinationConfiguration]
+        testDestinationConfigurations: [TestDestinationConfiguration],
+        resultBundleGenerator: ResultBundleGenerator
     ) {
         self.logger = logger
         self.resourceLocationResolver = resourceLocationResolver
         self.bucketResults = bucketResults
         self.commonReportOutput = commonReportOutput
         self.testDestinationConfigurations = testDestinationConfigurations
+        self.resultBundleGenerator = resultBundleGenerator
     }
     
     public func generateOutput() throws {
@@ -75,7 +80,8 @@ public final class ResultingOutputGenerator {
             logger: logger,
             resourceLocationResolver: resourceLocationResolver,
             testingResult: combinedTestingResults,
-            reportOutput: reportOutput
+            reportOutput: reportOutput,
+            resultBundleGenerator: resultBundleGenerator
         )
         try reportsGenerator.prepareReports()
     }

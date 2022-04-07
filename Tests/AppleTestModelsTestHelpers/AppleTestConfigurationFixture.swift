@@ -22,6 +22,7 @@ public final class AppleTestConfigurationFixture {
     public var testExecutionBehavior: TestExecutionBehavior
     public var testTimeoutConfiguration: TestTimeoutConfiguration
     public var testAttachmentLifetime: TestAttachmentLifetime
+    public var collectResultBundles: Bool
     
     public init(
         buildArtifacts: AppleBuildArtifacts = AppleBuildArtifactsFixture().appleBuildArtifacts(),
@@ -33,7 +34,8 @@ public final class AppleTestConfigurationFixture {
         simRuntime: SimRuntime = SimRuntimeFixture.fixture(),
         testExecutionBehavior: TestExecutionBehavior = TestExecutionBehaviorFixtures().testExecutionBehavior(),
         testTimeoutConfiguration: TestTimeoutConfiguration = TestTimeoutConfiguration(singleTestMaximumDuration: 60, testRunnerMaximumSilenceDuration: 60),
-        testAttachmentLifetime: TestAttachmentLifetime = .deleteOnSuccess
+        testAttachmentLifetime: TestAttachmentLifetime = .deleteOnSuccess,
+        collectResultBundles: Bool = false
     ) {
         self.buildArtifacts = buildArtifacts
         self.developerDir = developerDir
@@ -45,6 +47,7 @@ public final class AppleTestConfigurationFixture {
         self.testExecutionBehavior = testExecutionBehavior
         self.testTimeoutConfiguration = testTimeoutConfiguration
         self.testAttachmentLifetime = testAttachmentLifetime
+        self.collectResultBundles = collectResultBundles
     }
     
     public func with(buildArtifacts: AppleBuildArtifacts) -> Self {
@@ -97,6 +100,11 @@ public final class AppleTestConfigurationFixture {
         return self
     }
     
+    public func with(collectResultBundles: Bool) -> Self {
+        self.collectResultBundles = collectResultBundles
+        return self
+    }
+    
     public func appleTestConfiguration() -> AppleTestConfiguration {
         AppleTestConfiguration(
             buildArtifacts: buildArtifacts,
@@ -108,7 +116,8 @@ public final class AppleTestConfigurationFixture {
             simRuntime: simRuntime,
             testExecutionBehavior: testExecutionBehavior,
             testTimeoutConfiguration: testTimeoutConfiguration,
-            testAttachmentLifetime: testAttachmentLifetime
+            testAttachmentLifetime: testAttachmentLifetime,
+            resultBundlesUploadUrl: nil
         )
     }
 }

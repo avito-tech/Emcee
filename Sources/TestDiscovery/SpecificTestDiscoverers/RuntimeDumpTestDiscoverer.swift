@@ -38,6 +38,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
     private let waiter: Waiter
     private let globalMetricRecorder: GlobalMetricRecorder
     private let specificMetricRecorder: SpecificMetricRecorder
+    private let resultBundleUploader: ResultBundleUploader
     
     public init(
         buildArtifacts: AppleBuildArtifacts,
@@ -56,7 +57,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         version: Version,
         waiter: Waiter,
         globalMetricRecorder: GlobalMetricRecorder,
-        specificMetricRecorder: SpecificMetricRecorder
+        specificMetricRecorder: SpecificMetricRecorder,
+        resultBundleUploader: ResultBundleUploader
     ) {
         self.buildArtifacts = buildArtifacts
         self.dateProvider = dateProvider
@@ -75,6 +77,7 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
         self.waiter = waiter
         self.globalMetricRecorder = globalMetricRecorder
         self.specificMetricRecorder = specificMetricRecorder
+        self.resultBundleUploader = resultBundleUploader
     }
     
     public func discoverTestEntries(
@@ -96,7 +99,8 @@ public final class RuntimeDumpTestDiscoverer: SpecificTestDiscoverer {
             testRunnerProvider: testRunnerProvider,
             uniqueIdentifierGenerator: uniqueIdentifierGenerator,
             version: version,
-            waiter: waiter
+            waiter: waiter,
+            resultBundleUploader: resultBundleUploader
         )
         
         let allocatedSimulator = try simulatorForTestDiscovery(
