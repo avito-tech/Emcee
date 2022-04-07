@@ -81,6 +81,7 @@ public final class InProcessMain {
             .withMetadata(key: .emceeVersion, value: EmceeVersion.version.value)
             .withMetadata(key: .processId, value: "\(ProcessInfo.processInfo.processIdentifier)")
             .withMetadata(key: .processName, value: ProcessInfo.processInfo.processName)
+            .withMetadata(key: .hostname, value: LocalHostDeterminer.currentHostAddress)
         di.set(logger)
         
         defer {
