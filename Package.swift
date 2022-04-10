@@ -506,6 +506,7 @@ let package = Package(
             name: "DistWorkerModels",
             dependencies: [
                 .product(name: "CLTExtensions", package: "CommandLineToolkit"),
+                "EmceeExtensions",
                 "MetricsExtensions",
                 "QueueModels",
                 "RESTInterfaces",
@@ -516,6 +517,7 @@ let package = Package(
             name: "DistWorkerModelsTestHelpers",
             dependencies: [
                 "DistWorkerModels",
+                "EmceeExtensions",
                 "MetricsExtensions",
                 "QueueModels",
             ],
@@ -572,6 +574,7 @@ let package = Package(
             dependencies: [
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "PlistLib", package: "CommandLineToolkit"),
+                .product(name: "SocketModels", package: "CommandLineToolkit"),
             ],
             path: "Sources/EmceeExtensions"
         ),

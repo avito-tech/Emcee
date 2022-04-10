@@ -171,7 +171,8 @@ public final class RunTestsCommand: Command {
             workerDeploymentDestinations: workerDeploymentDestinations,
             defaultWorkerSpecificConfiguration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration,
             workerStartMode: QueueServerConfigurationDefaultValues.workerStartMode,
-            useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4
+            useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4,
+            portRange: QueueServerConfigurationDefaultValues.defaultQueuePortRange
         )
         
         try RunTestsOnRemoteQueueLogic(di: di).run(

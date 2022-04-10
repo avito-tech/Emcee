@@ -89,7 +89,8 @@ public final class InitQueueServerConfigCommand: Command {
             ],
             defaultWorkerSpecificConfiguration: WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration,
             workerStartMode: .queueStartsItsWorkersOverSshAndLaunchd,
-            useOnlyIPv4: false
+            useOnlyIPv4: QueueServerConfigurationDefaultValues.useOnlyIPv4,
+            portRange: QueueServerConfigurationDefaultValues.defaultQueuePortRange
         )
         
         let data = try JSONEncoder.pretty().encode(config)

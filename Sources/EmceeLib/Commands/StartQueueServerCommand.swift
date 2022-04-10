@@ -99,7 +99,7 @@ public final class StartQueueServerCommand: Command {
         let remotePortDeterminer = RemoteQueuePortScanner(
             hosts: queueServerConfiguration.queueServerDeploymentDestinations.map(\.host),
             logger: logger,
-            portRange: EmceePorts.defaultQueuePortRange,
+            portRange: queueServerConfiguration.portRange.closedRange,
             requestSenderProvider: try di.get()
         )
         let queueCommunicationService = DefaultQueueCommunicationService(
@@ -163,7 +163,7 @@ public final class StartQueueServerCommand: Command {
             hostname: hostname,
             localPortDeterminer: LocalPortDeterminer(
                 logger: logger,
-                portRange: EmceePorts.defaultQueuePortRange
+                portRange: queueServerConfiguration.portRange.closedRange
             ),
             logger: logger,
             globalMetricRecorder: try di.get(),

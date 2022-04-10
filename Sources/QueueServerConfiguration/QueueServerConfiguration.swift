@@ -7,14 +7,33 @@ import MetricsExtensions
 import QueueModels
 
 public struct QueueServerConfiguration: Codable {
+    
+    /// Global analytics. https://github.com/avito-tech/Emcee/releases/tag/12.0.0
     public let globalAnalyticsConfiguration: AnalyticsConfiguration
+    
+    /// How often workers should poll a queue for new buckets, in seconds. Recommended and default value is `30` seconds.
     public let checkAgainTimeInterval: TimeInterval
+    
+    /// Where queue should be deployed.
     public let queueServerDeploymentDestinations: [DeploymentDestination]
+    
+    /// How queue should terminate.
     public let queueServerTerminationPolicy: AutomaticTerminationPolicy
+    
+    /// Where workers expected to be started.
     public let workerDeploymentDestinations: [DeploymentDestination]
+    
+    /// Default worker configuration, in case if you don't specify ones in `workerDeploymentDestinations`.
     public let defaultWorkerConfiguration: WorkerSpecificConfiguration?
+    
+    /// How workers are started.
     public let workerStartMode: WorkerStartMode
+    
+    /// Force communication only over IPv4. Sometimes IPv6 is enabled but not configured properly. In most cases pass `true` for ease of use.
     public let useOnlyIPv4: Bool
+    
+    /// What ports Emcee queue and workers should use. Default is `41000 ... 41010`.
+    public let portRange: PortRange
     
     public init(
         globalAnalyticsConfiguration: AnalyticsConfiguration,
@@ -24,7 +43,8 @@ public struct QueueServerConfiguration: Codable {
         workerDeploymentDestinations: [DeploymentDestination],
         defaultWorkerSpecificConfiguration: WorkerSpecificConfiguration?,
         workerStartMode: WorkerStartMode,
-        useOnlyIPv4: Bool
+        useOnlyIPv4: Bool,
+        portRange: PortRange
     ) {
         self.globalAnalyticsConfiguration = globalAnalyticsConfiguration
         self.checkAgainTimeInterval = checkAgainTimeInterval
@@ -34,6 +54,7 @@ public struct QueueServerConfiguration: Codable {
         self.defaultWorkerConfiguration = defaultWorkerSpecificConfiguration
         self.workerStartMode = workerStartMode
         self.useOnlyIPv4 = useOnlyIPv4
+        self.portRange = portRange
     }
     
     private enum CodingKeys: String, CodingKey {
@@ -45,6 +66,7 @@ public struct QueueServerConfiguration: Codable {
         case defaultWorkerConfiguration
         case workerStartMode
         case useOnlyIPv4
+        case portRange
     }
     
     public init(from decoder: Decoder) throws {
@@ -58,6 +80,7 @@ public struct QueueServerConfiguration: Codable {
         let defaultWorkerSpecificConfiguration = try container.decodeIfPresentExplaining(WorkerSpecificConfiguration.self, forKey: .defaultWorkerConfiguration) ?? WorkerSpecificConfigurationDefaultValues.defaultWorkerConfiguration
         let workerStartMode = try container.decodeIfPresentExplaining(WorkerStartMode.self, forKey: .workerStartMode) ?? QueueServerConfigurationDefaultValues.workerStartMode
         let useOnlyIPv4 = try container.decodeIfPresentExplaining(Bool.self, forKey: .useOnlyIPv4) ?? QueueServerConfigurationDefaultValues.useOnlyIPv4
+        let portRange = try container.decodeIfPresentExplaining(PortRange.self, forKey: .portRange) ?? QueueServerConfigurationDefaultValues.defaultQueuePortRange
         
         self.init(
             globalAnalyticsConfiguration: globalAnalyticsConfiguration,
@@ -67,7 +90,8 @@ public struct QueueServerConfiguration: Codable {
             workerDeploymentDestinations: workerDeploymentDestinations,
             defaultWorkerSpecificConfiguration: defaultWorkerSpecificConfiguration,
             workerStartMode: workerStartMode,
-            useOnlyIPv4: useOnlyIPv4
+            useOnlyIPv4: useOnlyIPv4,
+            portRange: portRange
         )
     }
     
@@ -82,6 +106,7 @@ public struct QueueServerConfiguration: Codable {
         try container.encodeIfPresent(defaultWorkerConfiguration, forKey: .defaultWorkerConfiguration)
         try container.encode(workerStartMode, forKey: .workerStartMode)
         try container.encode(useOnlyIPv4, forKey: .useOnlyIPv4)
+        try container.encode(portRange, forKey: .portRange)
     }
     
     public func workerConfiguration(
@@ -93,7 +118,8 @@ public struct QueueServerConfiguration: Codable {
             numberOfSimulators: workerSpecificConfiguration.numberOfSimulators,
             payloadSignature: payloadSignature,
             maximumCacheSize: workerSpecificConfiguration.maximumCacheSize,
-            maximumCacheTTL: workerSpecificConfiguration.maximumCacheTTL
+            maximumCacheTTL: workerSpecificConfiguration.maximumCacheTTL,
+            portRange: portRange
         )
     }
 }

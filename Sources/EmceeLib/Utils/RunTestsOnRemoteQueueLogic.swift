@@ -152,7 +152,7 @@ final class RunTestsOnRemoteQueueLogic {
             remotePortDeterminer: RemoteQueuePortScanner(
                 hosts: queueServerDeploymentDestinations.map(\.host),
                 logger: logger,
-                portRange: EmceePorts.defaultQueuePortRange,
+                portRange: queueServerConfiguration.portRange.closedRange,
                 requestSenderProvider: try di.get()
             )
         )
