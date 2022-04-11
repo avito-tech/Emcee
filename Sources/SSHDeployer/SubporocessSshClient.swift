@@ -72,9 +72,10 @@ public final class SubprocessSshClient: SSHClient {
                 """
                 spawn \(joinedCommand)
                 
-                expect "assword:"
-                send "$env(\(Self.sshPasswordEnvName))\r"
-                interact
+                set pass "$env(\(Self.sshPasswordEnvName))"
+                expect {
+                    password: {send "$pass\r"; exp_continue}
+                }
                 
                 set waitval [wait -i $spawn_id]
                 exit [lindex $waitval 3]

@@ -163,9 +163,10 @@ final class SubprocessSshClientTests: XCTestCase {
             """
             spawn /usr/bin/ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o PasswordAuthentication=yes -o NumberOfPasswordPrompts=1 -o Port=42 username@host ls -l '/some/path/to/folder with spaces'
 
-            expect "assword:"
-            send "$env(EMCEE_SSH_PASSWORD)\r"
-            interact
+            set pass "$env(EMCEE_SSH_PASSWORD)"
+            expect {
+                password: {send "$pass\r"; exp_continue}
+            }
 
             set waitval [wait -i $spawn_id]
             exit [lindex $waitval 3]
@@ -198,9 +199,10 @@ final class SubprocessSshClientTests: XCTestCase {
             """
             spawn /usr/bin/scp -o PreferredAuthentications=password -o PubkeyAuthentication=no -o StrictHostKeyChecking=no -o PasswordAuthentication=yes -o NumberOfPasswordPrompts=1 -o Port=42 '/some/local path/file with spaces' username@host:'/some/remote\\ path/file\\ with\\ spaces'
             
-            expect "assword:"
-            send "$env(EMCEE_SSH_PASSWORD)\r"
-            interact
+            set pass "$env(EMCEE_SSH_PASSWORD)"
+            expect {
+                password: {send "$pass\r"; exp_continue}
+            }
             
             set waitval [wait -i $spawn_id]
             exit [lindex $waitval 3]
