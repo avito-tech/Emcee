@@ -84,7 +84,7 @@ public final class DefaultHelpCommand: HelpCommand {
         var usage = " * \(argumentDescription.name.expectedInputValue.alignedToMatchWidth(otherStrings: allArgumentDescriptions.map { $0.name.expectedInputValue }))    \(argumentDescription.overview)"
         if usage.last != "." { usage += "." }
         if argumentDescription.multiple {
-            usage += " This argument may be repeated multiple times."
+            usage += " Can be repeated multiple times (e.g. --foo bar --foo baz)."
         }
         if argumentDescription.optional {
             usage += " Optional."

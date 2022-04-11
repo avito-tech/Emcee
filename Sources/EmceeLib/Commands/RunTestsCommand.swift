@@ -13,6 +13,7 @@ import QueueModels
 import QueueServerConfiguration
 import RESTServer
 import ResourceLocationResolver
+import SimulatorPoolModels
 import TestArgFile
 import TestDestination
 import Tmp
@@ -36,6 +37,9 @@ public final class RunTestsCommand: Command {
         ArgumentDescriptions.junit.asOptional,
         ArgumentDescriptions.trace.asOptional,
         ArgumentDescriptions.hostname.asOptional,
+        ArgumentDescriptions.locale.asOptional,
+        ArgumentDescriptions.language.asMultiple.asOptional,
+        ArgumentDescriptions.keyboard.asMultiple.asOptional,
     ]
     
     private let di: DI
@@ -117,6 +121,11 @@ public final class RunTestsCommand: Command {
             version: try payload.expectedSingleTypedValue(argumentName: ArgumentDescriptions.runtime.name)
         )
         
+        let simulatorLocale: String = try payload.optionalSingleTypedValue(argumentName: ArgumentDescriptions.locale.name) ?? TestArgFileDefaultValues.simulatorLocalizationSettings.localeIdentifier
+        let simulatorLanguages: [String] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.language.name).orIfEmpty(TestArgFileDefaultValues.simulatorLocalizationSettings.languages)
+        let simulatorKeyboards: [String] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.keyboard.name).orIfEmpty(TestArgFileDefaultValues.simulatorLocalizationSettings.keyboards)
+        let passcodeKeyboards: [String] = try payload.possiblyEmptyCollectionOfValues(argumentName: ArgumentDescriptions.passcodeKeyboard.name).orIfEmpty(TestArgFileDefaultValues.simulatorLocalizationSettings.passcodeKeyboards)
+        
         var testsToRun: [TestToRun] = []
         if testNamesToRun.isEmpty {
             testsToRun = [.allDiscoveredTests]
@@ -145,7 +154,15 @@ public final class RunTestsCommand: Command {
                     pluginLocations: [],
                     scheduleStrategy: TestArgFileDefaultValues.scheduleStrategy,
                     simulatorOperationTimeouts: TestArgFileDefaultValues.simulatorOperationTimeouts,
-                    simulatorSettings: TestArgFileDefaultValues.simulatorSettings,
+                    simulatorSettings: SimulatorSettings(
+                        simulatorLocalizationSettings: TestArgFileDefaultValues.simulatorLocalizationSettings
+                            .with(localeIdentifier: simulatorLocale)
+                            .with(languages: simulatorLanguages)
+                            .with(keyboards: simulatorKeyboards)
+                            .with(passcodeKeyboards: passcodeKeyboards),
+                        simulatorKeychainSettings: TestArgFileDefaultValues.simulatorSettings.simulatorKeychainSettings,
+                        watchdogSettings: TestArgFileDefaultValues.simulatorSettings.watchdogSettings
+                    ),
                     testDestination: testDestination,
                     testTimeoutConfiguration: TestTimeoutConfiguration(singleTestMaximumDuration: testTimeout, testRunnerMaximumSilenceDuration: testTimeout),
                     testAttachmentLifetime: TestArgFileDefaultValues.testAttachmentLifetime,

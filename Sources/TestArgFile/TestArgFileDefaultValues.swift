@@ -33,18 +33,19 @@ public enum TestArgFileDefaultValues {
         automaticSimulatorShutdown: 300,
         automaticSimulatorDelete: 300
     )
+    public static let simulatorLocalizationSettings = SimulatorLocalizationSettings(
+        localeIdentifier: "ru_US",
+        keyboards: ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
+        passcodeKeyboards: ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
+        languages: ["ru-US", "en", "ru-RU"],
+        addingEmojiKeybordHandled: true,
+        enableKeyboardExpansion: true,
+        didShowInternationalInfoAlert: true,
+        didShowContinuousPathIntroduction: true,
+        didShowGestureKeyboardIntroduction: true
+    )
     public static let simulatorSettings = SimulatorSettings(
-        simulatorLocalizationSettings: SimulatorLocalizationSettings(
-            localeIdentifier: "ru_US",
-            keyboards: ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
-            passcodeKeyboards: ["ru_RU@sw=Russian;hw=Automatic", "en_US@sw=QWERTY;hw=Automatic"],
-            languages: ["ru-US", "en", "ru-RU"],
-            addingEmojiKeybordHandled: true,
-            enableKeyboardExpansion: true,
-            didShowInternationalInfoAlert: true,
-            didShowContinuousPathIntroduction: true,
-            didShowGestureKeyboardIntroduction: true
-        ),
+        simulatorLocalizationSettings: simulatorLocalizationSettings,
         simulatorKeychainSettings: SimulatorKeychainSettings(
             rootCerts: []
         ),

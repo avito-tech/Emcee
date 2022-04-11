@@ -1,10 +1,10 @@
 import Foundation
 
 public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, Hashable {
-    public let localeIdentifier: String
-    public let keyboards: [String]
-    public let passcodeKeyboards: [String]
-    public let languages: [String]
+    public private(set) var localeIdentifier: String
+    public private(set) var keyboards: [String]
+    public private(set) var passcodeKeyboards: [String]
+    public private(set) var languages: [String]
     public let addingEmojiKeybordHandled: Bool
     public let enableKeyboardExpansion: Bool
     public let didShowInternationalInfoAlert: Bool
@@ -31,6 +31,30 @@ public struct SimulatorLocalizationSettings: Codable, CustomStringConvertible, H
         self.didShowInternationalInfoAlert = didShowInternationalInfoAlert
         self.didShowContinuousPathIntroduction = didShowContinuousPathIntroduction
         self.didShowGestureKeyboardIntroduction = didShowGestureKeyboardIntroduction
+    }
+    
+    public func with(localeIdentifier: String) -> Self {
+        var result = self
+        result.localeIdentifier = localeIdentifier
+        return result
+    }
+    
+    public func with(keyboards: [String]) -> Self {
+        var result = self
+        result.keyboards = keyboards
+        return result
+    }
+    
+    public func with(passcodeKeyboards: [String]) -> Self {
+        var result = self
+        result.passcodeKeyboards = passcodeKeyboards
+        return result
+    }
+    
+    public func with(languages: [String]) -> Self {
+        var result = self
+        result.languages = languages
+        return result
     }
     
     public var description: String {

@@ -29,7 +29,8 @@ public struct SimulatorSettings: Codable, Hashable, CustomStringConvertible {
         self.simulatorLocalizationSettings = try container.decode(SimulatorLocalizationSettings.self, forKey: .simulatorLocalizationSettings)
         self.simulatorKeychainSettings = try container.decodeIfPresent(SimulatorKeychainSettings.self, forKey: .simulatorKeychainSettings)
             ?? SimulatorKeychainSettings(rootCerts: [])
-        self.watchdogSettings = try container.decode(WatchdogSettings.self, forKey: .watchdogSettings)
+        self.watchdogSettings = try container.decodeIfPresent(WatchdogSettings.self, forKey: .watchdogSettings)
+            ?? WatchdogSettings(bundleIds: [], timeout: 20)
     }
     
     // MARK: - CustomStringConvertible
