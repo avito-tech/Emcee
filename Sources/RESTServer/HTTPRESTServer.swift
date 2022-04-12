@@ -70,8 +70,8 @@ public final class HTTPRESTServer {
         }
     }
     
-    public func waitForUploadsToComplete() {
-        if filesUploadGroup.wait(timeout: .now() + 60) == .timedOut {
+    public func waitForUploadsToComplete(timeout: DispatchTime) {
+        if filesUploadGroup.wait(timeout: timeout) == .timedOut {
             logger.error("Upload timeout error")
         }
     }

@@ -152,11 +152,19 @@ public final class InProcessMain {
         )
         
         di.set(
+            ZipDecompressorImpl(
+                processControllerProvider: try di.get()
+            ),
+            for: ZipDecompressor.self
+        )
+        
+        di.set(
             ResourceLocationResolverImpl(
                 fileSystem: try di.get(),
                 logger: logger,
                 urlResource: try di.get(),
                 processControllerProvider: try di.get(),
+                zipDecompressor: try di.get(),
                 commonlyUsedPathsProvider: try di.get()
             ),
             for: ResourceLocationResolver.self

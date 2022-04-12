@@ -66,13 +66,11 @@ public final class ResultBundlerUploaderImpl: ResultBundleUploader {
         urlRequest.httpMethod = "POST"
         
         let semaphore = DispatchSemaphore(value: 0)
-        let configuation = URLSessionConfiguration.default
-        configuation.timeoutIntervalForRequest = timeout
-        URLSession(configuration: configuation).uploadTask(
+        URLSession.shared.uploadTask(
             with: urlRequest,
             from: zippedResultBundleContents,
             completionHandler: { [logger] data, response, error in
-                logger.trace("Bundle upload \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+                logger.trace("Bundle upload status: \((response as? HTTPURLResponse)?.statusCode ?? 0)")
                 if let error = error {
                     logger.error("Bundle upload error: \(error)")
                 }
@@ -80,7 +78,7 @@ public final class ResultBundlerUploaderImpl: ResultBundleUploader {
             }
         ).resume()
         
-        if semaphore.wait(timeout: .now() + timeout) == .timedOut {
+        if semaphore.wait(timeout: .now() + timeout * 2) == .timedOut {
             logger.error("Bundle upload timed out")
         }
     }

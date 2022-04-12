@@ -2,14 +2,18 @@ import Foundation
 import Runner
 import PathLib
 
-public final class FakeResultBundleUploader: ResultBundleUploader {
+open class FakeResultBundleUploader: ResultBundleUploader {
     
-    public init() {}
+    public init() {
+    }
+    
+    public private(set) var uploadedResultBundles: [(AbsolutePath, URL)] = []
     
     public func uploadResultBundle(
         zippedResultBundleOutputPath: AbsolutePath,
         resultBundlesUploadUrl: URL
     ) {
-
+        uploadedResultBundles.append((zippedResultBundleOutputPath, resultBundlesUploadUrl))
     }
+    
 }

@@ -1539,6 +1539,7 @@ let package = Package(
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TypedResourceLocation",
                 "URLResource",
+                "Zip",
             ],
             path: "Sources/ResourceLocationResolver"
         ),
@@ -1570,6 +1571,7 @@ let package = Package(
                 .product(name: "Tmp", package: "CommandLineToolkit"),
                 "URLResource",
                 "URLSessionTestHelpers",
+                "ZipTestHelpers",
             ],
             path: "Tests/ResourceLocationResolverTests"
         ),
@@ -1580,6 +1582,18 @@ let package = Package(
                 .product(name: "Tmp", package: "CommandLineToolkit"),
             ],
             path: "Tests/ResourceLocationTests"
+        ),
+        .target(
+            name: "ResultBundleReporting",
+            dependencies: [
+                "EmceeLogging",
+                .product(name: "FileSystem", package: "CommandLineToolkit"),
+                .product(name: "PathLib", package: "CommandLineToolkit"),
+                .product(name: "ProcessController", package: "CommandLineToolkit"),
+                "ResourceLocationResolver",
+                .product(name: "Tmp", package: "CommandLineToolkit"),
+            ],
+            path: "Sources/ResultBundleReporting"
         ),
         .target(
             name: "ResultStream",

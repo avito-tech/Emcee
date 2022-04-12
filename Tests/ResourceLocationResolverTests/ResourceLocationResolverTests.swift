@@ -16,6 +16,7 @@ import URLResource
 import URLSessionTestHelpers
 import XCTest
 import FileSystemTestHelpers
+import ZipTestHelpers
 
 final class ResourceLocationResolverTests: XCTestCase {
     
@@ -210,6 +211,7 @@ final class ResourceLocationResolverTests: XCTestCase {
             dateProvider: dateProvider,
             filePropertiesProvider: FilePropertiesProviderImpl()
         ),
+        zipDecompressor: FakeZipDecompressor(),
         commonlyUsedPathsProvider: FakeCommonlyUsedPathsProvider(
             applicationsProvider: { _ in self.rootPath.appending("Applications") },
             cachesProvider: { _ in self.rootPath.appending("Library", "Caches") },

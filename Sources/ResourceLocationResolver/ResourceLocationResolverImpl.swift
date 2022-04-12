@@ -8,6 +8,7 @@ import ProcessController
 import ResourceLocation
 import SynchronousWaiter
 import URLResource
+import Zip
 
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let fileSystem: FileSystem
@@ -15,6 +16,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let urlResource: URLResource
     private let processControllerProvider: ProcessControllerProvider
     private let commonlyUsedPathsProvider: CommonlyUsedPathsProvider
+    private let zipDecompressor: ZipDecompressor
     private let unarchiveQueue = DispatchQueue(label: "ResourceLocationResolverImpl.unarchiveQueue")
     
     public enum ValidationError: Error, CustomStringConvertible {
@@ -33,12 +35,14 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         logger: ContextualLogger,
         urlResource: URLResource,
         processControllerProvider: ProcessControllerProvider,
+        zipDecompressor: ZipDecompressor,
         commonlyUsedPathsProvider: CommonlyUsedPathsProvider
     ) {
         self.fileSystem = fileSystem
         self.logger = logger
         self.urlResource = urlResource
         self.processControllerProvider = processControllerProvider
+        self.zipDecompressor = zipDecompressor
         self.commonlyUsedPathsProvider = commonlyUsedPathsProvider
     }
     
@@ -72,13 +76,11 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
                         "zip_contents_\(UUID().uuidString)"
                     )
                     
-                    let processController = try processControllerProvider.createProcessController(
-                        subprocess: Subprocess(
-                            arguments: ["/usr/bin/unzip", zipFilePath, "-d", temporaryContentsPath]
-                        )
-                    )
                     do {
-                        try processController.startAndWaitForSuccessfulTermination()
+                        try zipDecompressor.decompress(
+                            archivePath: zipFilePath,
+                            extractionPath: temporaryContentsPath
+                        )
                         try fileSystem.move(source: temporaryContentsPath, destination: contentsPath)
                     } catch {
                         logger.error("Failed to unzip file: \(error)")

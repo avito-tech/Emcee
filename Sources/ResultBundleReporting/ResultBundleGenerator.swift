@@ -23,6 +23,7 @@ public final class ResultBundleGenerator {
     private let logger: ContextualLogger
     private let fileSystem: FileSystem
     private let resourceLocationResolver: ResourceLocationResolver
+    private let zipDecompressor: ZipDecompressor
     private let uploadFolder: AbsolutePath
     
     public init(
@@ -31,6 +32,7 @@ public final class ResultBundleGenerator {
         logger: ContextualLogger,
         fileSystem: FileSystem,
         resourceLocationResolver: ResourceLocationResolver,
+        zipDecompressor: ZipDecompressor,
         uploadFolder: AbsolutePath
     ) {
         self.processControllerProvider = processControllerProvider
@@ -38,6 +40,7 @@ public final class ResultBundleGenerator {
         self.logger = logger
         self.fileSystem = fileSystem
         self.resourceLocationResolver = resourceLocationResolver
+        self.zipDecompressor = zipDecompressor
         self.uploadFolder = uploadFolder
     }
     
@@ -55,15 +58,14 @@ public final class ResultBundleGenerator {
             try self.fileSystem.isRegularFile(path: $0)
         }.forEach { xcresultArchivePath in
             let xcresultContentsPath = temporaryDirectory.appending(
-                "ziped_xcresult_\(UUID().uuidString)"
+                "zipped_xcresult_\(UUID().uuidString)"
             )
             
             do {
-                try processControllerProvider.createProcessController(
-                    subprocess: Subprocess(
-                        arguments: ["/usr/bin/unzip", xcresultArchivePath, "-d", xcresultContentsPath]
-                    )
-                ).startAndWaitForSuccessfulTermination()
+                try zipDecompressor.decompress(
+                    archivePath: xcresultArchivePath,
+                    extractionPath: xcresultContentsPath
+                )
             } catch {
                 logger.error("Error unzipping result bundle at path \(xcresultArchivePath): \(error)")
             }
