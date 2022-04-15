@@ -94,6 +94,7 @@ final class RequestSenderTests: XCTestCase {
             request: FakeNetworkRequest(),
             credentials: credentials,
             callbackQueue: callbackQueue,
+            logFailedRequest: false,
             callback: { _ in }
         )
         wait(for: [requestSent], timeout: 10)
@@ -116,6 +117,7 @@ final class RequestSenderTests: XCTestCase {
             request: FakeNetworkRequest(),
             credentials: nil,
             callbackQueue: callbackQueue,
+            logFailedRequest: false,
             callback: { _ in }
         )
         wait(for: [requestSent], timeout: 10)

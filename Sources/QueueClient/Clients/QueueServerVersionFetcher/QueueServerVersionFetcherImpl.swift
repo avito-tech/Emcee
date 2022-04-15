@@ -19,6 +19,7 @@ public final class QueueServerVersionFetcherImpl: QueueServerVersionFetcher {
         requestSender.sendRequestWithCallback(
             request: QueueVersionRequest(),
             callbackQueue: callbackQueue,
+            logFailedRequest: false,
             callback: { (result: Either<QueueVersionResponse, RequestSenderError>) in
                 completion(
                     result.mapResult {

@@ -31,6 +31,7 @@ open class FakeRequestSender: RequestSender {
         request: NetworkRequestType,
         credentials: Credentials?,
         callbackQueue: DispatchQueue,
+        logFailedRequest: Bool,
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) {
         self.request = request

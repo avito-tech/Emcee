@@ -38,7 +38,8 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         sender.sendRequestWithCallback(
             request: request,
             credentials: config.credentials,
-            callbackQueue: callbackQueue
+            callbackQueue: callbackQueue,
+            logFailedRequest: false
         ) { result in
             callbackWaiter.set(result: result)
         }
@@ -58,7 +59,8 @@ class DefaultRuntimeDumpRemoteCache: RuntimeDumpRemoteCache {
         sender.sendRequestWithCallback(
             request: request,
             credentials: config.credentials,
-            callbackQueue: callbackQueue
+            callbackQueue: callbackQueue,
+            logFailedRequest: false
         ) { (result: Either<VoidPayload, RequestSenderError>) in
             callbackWaiter.set(result: result.right)
         }

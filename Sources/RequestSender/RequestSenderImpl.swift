@@ -30,6 +30,7 @@ public final class RequestSenderImpl: RequestSender {
         request: NetworkRequestType,
         credentials: Credentials?,
         callbackQueue: DispatchQueue,
+        logFailedRequest: Bool,
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) {
         do {
@@ -37,6 +38,7 @@ public final class RequestSenderImpl: RequestSender {
                 request: request,
                 credentials: credentials,
                 callbackQueue: callbackQueue,
+                logFailedRequest: logFailedRequest,
                 callback: callback
             )
         } catch {
@@ -50,6 +52,7 @@ public final class RequestSenderImpl: RequestSender {
         request: NetworkRequestType,
         credentials: Credentials?,
         callbackQueue: DispatchQueue,
+        logFailedRequest: Bool,
         callback: @escaping (Either<NetworkRequestType.Response, RequestSenderError>) -> ()
     ) throws {
         let url = try createUrl(pathWithSlash: request.pathWithLeadingSlash)
@@ -58,9 +61,9 @@ public final class RequestSenderImpl: RequestSender {
         guard !isClosed else {
             throw RequestSenderError.sessionIsClosed(url)
         }
-
+        
         var urlRequest = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: .infinity)
-        urlRequest.addValue("Content-Type", forHTTPHeaderField: "application/json")
+        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.httpMethod = request.httpMethod.value
         urlRequest.httpBody = try buildHttpBody(payload: request.payload)
         urlRequest.timeoutInterval = request.timeout
@@ -70,7 +73,7 @@ public final class RequestSenderImpl: RequestSender {
             urlRequest.setValue("Basic \(loginString)", forHTTPHeaderField: "Authorization")
         }
 
-        launchDataTask(url: url, urlRequest: urlRequest, callbackQueue: callbackQueue, callback: callback)
+        launchDataTask(url: url, urlRequest: urlRequest, callbackQueue: callbackQueue, logFailedRequest: logFailedRequest, callback: callback)
     }
 
     private func buildHttpBody<PayloadType: Encodable>(payload: PayloadType?) throws -> Data? {
@@ -82,13 +85,16 @@ public final class RequestSenderImpl: RequestSender {
         url: URL,
         urlRequest: URLRequest,
         callbackQueue: DispatchQueue,
+        logFailedRequest: Bool,
         callback: @escaping (Either<ResponseType, RequestSenderError>) -> ()
     ) {
         let logger = self.logger.withMetadata(key: "url", value: url.absoluteString)
         
         let dataTask = urlSession.dataTask(with: urlRequest) { (data: Data?, response: URLResponse?, error: Error?) in
             if let error = error {
-                logger.error("Failed to perform request to \(url): \(error)")
+                if logFailedRequest {
+                    logger.error("Failed to perform request to \(url): \(error)")
+                }
                 callbackQueue.async { callback(.error(.communicationError(error))) }
                 return
             }
