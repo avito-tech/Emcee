@@ -1,5 +1,5 @@
 import Foundation
-import Metrics
+import MetricsRecording
 import Graphite
 import Statsd
 

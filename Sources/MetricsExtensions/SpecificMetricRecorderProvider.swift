@@ -1,6 +1,6 @@
 import AtomicModels
 import Foundation
-import Metrics
+import MetricsRecording
 
 public protocol SpecificMetricRecorderProvider {
     func specificMetricRecorder(

@@ -11,7 +11,7 @@ import FileSystem
 import Foundation
 import HostnameProvider
 import LocalHostDeterminer
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import PathLib
 import PluginManager

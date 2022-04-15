@@ -1,6 +1,6 @@
 import AtomicModels
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import QueueCommunicationModels
 import QueueModels

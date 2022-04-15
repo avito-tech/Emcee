@@ -3,7 +3,7 @@
     "pins": [
       {
         "package": "Signals",
-        "repositoryURL": "https://github.com/IBM-Swift/BlueSignals.git",
+        "repositoryURL": "ssh://git@stash.msk.avito.ru:7999/iedm/bluesignals.git",
         "state": {
           "branch": null,
           "revision": "b7331c8bef913f5f8b3cffa6ecfcce679f7c2531",
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/avito-tech/CommandLineToolkit.git",
         "state": {
           "branch": null,
-          "revision": "16612e46a7e6af9678d37a851a65500c533da65e",
-          "version": "1.0.10"
+          "revision": "94061cdf5657d3e6e0155b4dd16f78f109b3c9e8",
+          "version": "1.0.11"
         }
       },
       {
@@ -39,7 +39,7 @@
       },
       {
         "package": "Glob",
-        "repositoryURL": "https://github.com/Bouke/Glob",
+        "repositoryURL": "ssh://git@stash.msk.avito.ru:7999/iedm/glob",
         "state": {
           "branch": null,
           "revision": "deda6e163d2ff2a8d7e138e2c3326dbd71157faf",
@@ -66,11 +66,11 @@
       },
       {
         "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "repositoryURL": "ssh://git@stash.msk.avito.ru:7999/iedm/swift-argument-parser",
         "state": {
           "branch": null,
-          "revision": "6b2aa2748a7881eebb9f84fb10c01293e15b52ca",
-          "version": "0.5.0"
+          "revision": "e394bf350e38cb100b6bc4172834770ede1b7232",
+          "version": "1.0.3"
         }
       },
       {

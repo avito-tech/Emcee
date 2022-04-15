@@ -4,7 +4,7 @@ import FileSystem
 import EmceeLoggingModels
 import Foundation
 import Kibana
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import PathLib
 import Tmp

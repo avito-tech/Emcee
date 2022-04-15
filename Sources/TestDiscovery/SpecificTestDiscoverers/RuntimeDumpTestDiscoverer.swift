@@ -6,7 +6,7 @@ import DeveloperDirLocator
 import FileSystem
 import Foundation
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import PathLib
 import PluginManager

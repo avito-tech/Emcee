@@ -1,5 +1,5 @@
 import Foundation
-import Metrics
+import MetricsRecording
 
 public protocol MutableMetricRecorderProvider {
     func metricRecorder() -> MutableMetricRecorder

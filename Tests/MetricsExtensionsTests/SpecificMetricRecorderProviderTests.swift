@@ -1,5 +1,5 @@
 import Graphite
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import SocketModels
 import Statsd

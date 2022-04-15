@@ -2,7 +2,7 @@ import BucketQueue
 import DateProvider
 import Foundation
 import QueueModels
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 
 public final class MultipleQueuesJobManipulator: JobManipulator {

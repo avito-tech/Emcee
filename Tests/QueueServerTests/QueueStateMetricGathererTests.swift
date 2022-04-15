@@ -2,7 +2,7 @@ import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
 import Graphite
-import Metrics
+import MetricsRecording
 import QueueModels
 import QueueServer
 import Types

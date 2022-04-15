@@ -8,7 +8,7 @@ import DeveloperDirLocatorTestHelpers
 import DeveloperDirModels
 import EmceeTypes
 import FileSystemTestHelpers
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import MetricsTestHelpers
 import PathLib

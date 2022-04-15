@@ -1,6 +1,6 @@
 import Foundation
 import Graphite
-import Metrics
+import MetricsRecording
 import QueueModels
 
 public final class JobCountMetric: GraphiteMetric {

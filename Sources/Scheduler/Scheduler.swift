@@ -8,7 +8,7 @@ import FileSystem
 import Foundation
 import ListeningSemaphore
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import PluginManager
 import ProcessController

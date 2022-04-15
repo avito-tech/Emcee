@@ -1,5 +1,5 @@
 import Graphite
-import Metrics
+import MetricsRecording
 import Statsd
 
 extension MutableMetricRecorder {

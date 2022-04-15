@@ -4,7 +4,7 @@ import BucketQueueModels
 import DateProvider
 import Foundation
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import QueueModels
 import ScheduleStrategy

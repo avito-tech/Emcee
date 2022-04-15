@@ -6,7 +6,7 @@ import DateProvider
 import Foundation
 import Graphite
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import QueueModels
 

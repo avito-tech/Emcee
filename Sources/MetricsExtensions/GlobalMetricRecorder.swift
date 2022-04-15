@@ -1,7 +1,7 @@
 import Graphite
 import Statsd
 import Foundation
-import Metrics
+import MetricsRecording
 
 /// A metric recorder for global purposes. Its metrics do not depend on specific test run.
 public protocol GlobalMetricRecorder: MutableMetricRecorder {

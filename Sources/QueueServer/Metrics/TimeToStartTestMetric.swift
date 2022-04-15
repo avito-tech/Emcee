@@ -1,7 +1,7 @@
 import CommonTestModels
 import Foundation
 import Graphite
-import Metrics
+import MetricsRecording
 import QueueModels
 
 public final class TimeToStartTestMetric: GraphiteMetric {

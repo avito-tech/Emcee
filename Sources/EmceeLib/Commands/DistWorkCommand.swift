@@ -8,7 +8,7 @@ import FileSystem
 import Foundation
 import EmceeLogging
 import EmceeLoggingModels
-import Metrics
+import MetricsRecording
 import PathLib
 import PluginManager
 import ProcessController

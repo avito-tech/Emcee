@@ -2,7 +2,7 @@ import EmceeDI
 import Dispatch
 import Foundation
 import EmceeLogging
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import QueueClient
 import QueueModels

@@ -1,7 +1,7 @@
 import CommonTestModels
 import DateProviderTestHelpers
 import Foundation
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import MetricsTestHelpers
 import Graphite

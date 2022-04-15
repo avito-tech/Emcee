@@ -2,7 +2,7 @@ import AtomicModels
 import CommonTestModels
 import DateProvider
 import Foundation
-import Metrics
+import MetricsRecording
 import MetricsExtensions
 import QueueModels
 
