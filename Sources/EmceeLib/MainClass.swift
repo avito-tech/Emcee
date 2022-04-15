@@ -9,6 +9,7 @@ public final class Main {
             return 0
         } catch {
             print("\(error)")
+            fatalError("\(error)")
             return 1
         }
     }

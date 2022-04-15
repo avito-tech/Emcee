@@ -1,6 +1,5 @@
 import Foundation
 import RESTInterfaces
-import Swifter
 
 public final class RESTEndpointOf<PayloadType: Decodable, ResponseType: Encodable>: RESTEndpoint {
     private let internalHandler: (PayloadType, PayloadMetadata?) throws -> ResponseType

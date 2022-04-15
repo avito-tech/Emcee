@@ -19,7 +19,7 @@ let package = Package(
         .package(name: "OrderedSet", url: "https://github.com/Weebly/OrderedSet", .exact("5.0.0")),
         .package(name: "Socket", url: "https://github.com/IBM-Swift/BlueSocket", .exact("1.0.46")),
         .package(name: "Starscream", url: "https://github.com/daltoniam/Starscream.git", .exact("3.0.6")),
-        .package(name: "Swifter", url: "https://github.com/httpswift/swifter.git", .exact("1.5.0")),
+        .package(name: "vapor", url: "https://github.com/vapor/vapor.git", .exact("4.55.4")),
     ],
     targets: [
         .target(
@@ -644,7 +644,6 @@ let package = Package(
                 "SimulatorPoolModels",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
                 .product(name: "Statsd", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TestArgFile",
                 "TestDestination",
@@ -1068,8 +1067,8 @@ let package = Package(
                 "PluginSupport",
                 .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "ResourceLocationResolver",
-                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
+                .product(name: "Vapor", package: "vapor"),
             ],
             path: "Sources/PluginManager"
         ),
@@ -1123,9 +1122,6 @@ let package = Package(
         .testTarget(
             name: "PortDeterminerTests",
             dependencies: [
-                "PortDeterminer",
-                .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
             ],
             path: "Tests/PortDeterminerTests"
         ),
@@ -1358,7 +1354,6 @@ let package = Package(
         .testTarget(
             name: "QueueServerTests",
             dependencies: [
-                .product(name: "AtomicModels", package: "CommandLineToolkit"),
                 "AutomaticTermination",
                 "AutomaticTerminationTestHelpers",
                 "BalancingBucketQueue",
@@ -1391,8 +1386,6 @@ let package = Package(
                 "ScheduleStrategy",
                 "SimulatorPoolTestHelpers",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
-                .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "UniqueIdentifierGeneratorTestHelpers",
@@ -1435,7 +1428,7 @@ let package = Package(
                 "RESTInterfaces",
                 "RESTMethods",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
+                .product(name: "Vapor", package: "vapor"),
             ],
             path: "Sources/RESTServer"
         ),
@@ -1448,7 +1441,6 @@ let package = Package(
                 "RESTMethods",
                 "RESTServer",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
             ],
@@ -1479,16 +1471,6 @@ let package = Package(
         .testTarget(
             name: "RemotePortDeterminerTests",
             dependencies: [
-                "PortDeterminer",
-                "QueueModels",
-                "RESTInterfaces",
-                "RESTMethods",
-                "RemotePortDeterminer",
-                "RequestSender",
-                "RequestSenderTestHelpers",
-                .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
-                .product(name: "TestHelpers", package: "CommandLineToolkit"),
             ],
             path: "Tests/RemotePortDeterminerTests"
         ),
@@ -1515,10 +1497,6 @@ let package = Package(
             name: "RequestSenderTests",
             dependencies: [
                 "RequestSender",
-                "RequestSenderTestHelpers",
-                .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
-                .product(name: "Types", package: "CommandLineToolkit"),
             ],
             path: "Tests/RequestSenderTests"
         ),
@@ -1557,22 +1535,9 @@ let package = Package(
         .testTarget(
             name: "ResourceLocationResolverTests",
             dependencies: [
-                .product(name: "DateProvider", package: "CommandLineToolkit"),
-                "EmceeExtensions",
-                "EmceeLogging",
-                "FileCache",
-                .product(name: "FileSystem", package: "CommandLineToolkit"),
-                .product(name: "FileSystemTestHelpers", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "ResourceLocation",
                 "ResourceLocationResolver",
-                .product(name: "Swifter", package: "Swifter"),
-                .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
-                .product(name: "TestHelpers", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
-                "URLResource",
-                "URLSessionTestHelpers",
             ],
             path: "Tests/ResourceLocationResolverTests"
         ),
@@ -2169,15 +2134,9 @@ let package = Package(
         .testTarget(
             name: "URLResourceTests",
             dependencies: [
-                .product(name: "DateProviderTestHelpers", package: "CommandLineToolkit"),
-                "EmceeExtensions",
-                "FileCache",
-                .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
-                .product(name: "Tmp", package: "CommandLineToolkit"),
                 "URLResource",
             ],
             path: "Tests/URLResourceTests"
@@ -2213,7 +2172,6 @@ let package = Package(
                 "RESTServer",
                 "RequestSender",
                 .product(name: "SocketModels", package: "CommandLineToolkit"),
-                .product(name: "Swifter", package: "Swifter"),
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "WorkerAlivenessProvider",

@@ -19,6 +19,8 @@ import TestDestination
 import Tmp
 import UniqueIdentifierGenerator
 
+fileprivate var disposeBag: [Any] = []
+
 public final class RunTestsCommand: Command {
     public let name = "runTests"
     public let description = "Runs tests (easy to use command)"
@@ -60,6 +62,7 @@ public final class RunTestsCommand: Command {
             portProvider: AnyAvailablePortProvider(),
             useOnlyIPv4: true
         )
+        disposeBag.append(httpRestServer)
         
         let queueUrls: [URL] = try payload.nonEmptyCollectionOfValues(argumentName: ArgumentDescriptions.queue.name)
         let queueDeploymentDestinations = try queueUrls.map { try $0.deploymentDestination() }

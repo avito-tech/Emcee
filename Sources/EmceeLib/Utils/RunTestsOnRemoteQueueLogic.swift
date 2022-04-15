@@ -42,8 +42,6 @@ final class RunTestsOnRemoteQueueLogic {
         testArgFile: TestArgFile,
         httpRestServer: HTTPRESTServer
     ) throws {
-        try httpRestServer.start()
-        
         let runningQueueServerAddress = try detectRemotelyRunningQueueServerPortsOrStartRemoteQueueIfNeeded(
             emceeVersion: emceeVersion,
             queueServerDeploymentDestinations: queueServerConfiguration.queueServerDeploymentDestinations,
@@ -85,6 +83,7 @@ final class RunTestsOnRemoteQueueLogic {
             buildArtifactsPreparer: buildArtifactsPreparer,
             logger: logger
         )
+//        try httpRestServer.start()
         
         if let kibanaConfiguration = testArgFile.prioritizedJob.analyticsConfiguration.kibanaConfiguration {
             try di.get(LoggingSetup.self).set(kibanaConfiguration: kibanaConfiguration)

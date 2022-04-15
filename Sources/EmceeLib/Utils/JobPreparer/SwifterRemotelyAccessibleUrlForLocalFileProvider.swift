@@ -4,7 +4,6 @@ import RESTMethods
 import RESTServer
 import RequestSender
 import SocketModels
-import Swifter
 import Types
 import UniqueIdentifierGenerator
 import WhatIsMyAddress
@@ -64,6 +63,8 @@ public final class SwifterRemotelyAccessibleUrlForLocalFileProvider: RemotelyAcc
             timeout: 10
         )
         
+        try server.start()
+        
         var urlComponents = URLComponents()
         urlComponents.scheme = "http"
         urlComponents.host = address
@@ -73,6 +74,7 @@ public final class SwifterRemotelyAccessibleUrlForLocalFileProvider: RemotelyAcc
         guard let result = urlComponents.url else {
             throw Errors.noUrlError(components: urlComponents)
         }
+        
         return result
     }
 }

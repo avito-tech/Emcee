@@ -69,7 +69,7 @@ public final class StartQueueServerCommand: Command {
             for: BucketGenerator.self
         )
 
-        try startQueueServer(
+        try! startQueueServer(
             emceeVersion: emceeVersion,
             hostname: hostname,
             queueServerConfiguration: queueServerConfiguration,

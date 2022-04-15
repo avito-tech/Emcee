@@ -1,6 +1,6 @@
 import Foundation
-import Swifter
 import EmceeLogging
+import Vapor
 
 public final class RequestParser {
     private let decoder: JSONDecoder
@@ -10,18 +10,16 @@ public final class RequestParser {
     }
     
     public func parse<T, R>(
-        request: HttpRequest,
-        responseProducer: (T) throws -> (R))
-        -> HttpResponse
-        where T: Decodable, R: Encodable
-    {
-        let requestData = Data(request.body)
+        request: Request,
+        responseProducer: (T) throws -> (R)
+    ) throws -> R where T: Decodable {
+        let requestData = Data(buffer: request.body.data!)
         do {
             let object: T = try decoder.decode(T.self, from: requestData)
-            return .json(response: try responseProducer(object))
+            return try responseProducer(object)
         } catch {
-            let errorString = "Failed to process request with path \"\(request.path)\", error: \"\(error)\""
-            return .badRequest(HttpResponseBody.text(errorString))
+            let errorString = "Failed to process request with path \"\(request.url)\", error: \"\(error)\""
+            throw Abort(.badRequest, reason: errorString)
         }
     }
 }

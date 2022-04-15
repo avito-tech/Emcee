@@ -6,7 +6,6 @@ import QueueModels
 import RESTInterfaces
 import RESTMethods
 import RESTServer
-import Swifter
 import WorkerAlivenessProvider
 
 public final class WhatIsMyAddressEndpoint: RESTEndpoint {
