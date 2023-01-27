@@ -151,9 +151,9 @@ Let's first run tests that don't require a host application. We will be using th
 
 ```sh
 ./Emcee runTests \
-	--queue ssh://emcee:qwerty@ios-build-machine77 \
-	--worker ssh://emcee:qwerty@ios-build-machine77 \
-	--worker ssh://emcee:qwerty@ios-build-machine78 \
+	--queue "ssh://emcee:qwerty@ios-build-machine77" \
+	--worker "ssh://emcee:qwerty@ios-build-machine77" \
+	--worker "ssh://emcee:qwerty@ios-build-machine78" \
 	--device "iPhone X" \
 	--runtime "15.0" \
 	--test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleTestsWithoutHost.xctest \
@@ -195,9 +195,9 @@ Now let's try running tests that require a host application. Host application pa
 
 ```sh
 ./Emcee runTests \
-    --queue ssh://emcee:qwerty@ios-build-machine77 \
-    --worker ssh://emcee:qwerty@ios-build-machine77 \
-    --worker ssh://emcee:qwerty@ios-build-machine78 \
+    --queue "ssh://emcee:qwerty@ios-build-machine77" \
+    --worker "ssh://emcee:qwerty@ios-build-machine77" \
+    --worker "ssh://emcee:qwerty@ios-build-machine78" \
     --device "iPhone X" \
     --runtime "15.0" \
     --app derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app \
@@ -217,9 +217,9 @@ Finally, we will run XCUI tests by adding a `--runner` option and changing the `
 
 ```sh
 ./Emcee runTests \
-    --queue ssh://emcee:qwerty@ios-build-machine77 \
-    --worker ssh://emcee:qwerty@ios-build-machine77 \
-    --worker ssh://emcee:qwerty@ios-build-machine78 \
+    --queue "ssh://emcee:qwerty@ios-build-machine77" \
+    --worker "ssh://emcee:qwerty@ios-build-machine77" \
+    --worker "ssh://emcee:qwerty@ios-build-machine78" \
     --device "iPhone X" \
     --runtime "15.0" \
     --runner derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app \
