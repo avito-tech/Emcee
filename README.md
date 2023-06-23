@@ -62,7 +62,7 @@ Both machines are set up with a standard non-administrator user `emcee` and a `q
 
 Install [Xcode](https://developer.apple.com/download/all/) and `sudo xcode-select --switch /Applications/Xcode.app` on all of your machines.
 
-We will use `Xcode 13.0 (13A233)` and the `iOS 15.0` simulator runtime bundled with this Xcode. If you want to use a specific version of simulator runtime, proceed to `Xcode -> Preferences... -> Components -> Simulators` and install the runtime on all the worker machines, where you want the tests to execute with the specific runtime version.
+We will use `Xcode 14.3 (14E222b)` and the `iOS 16.4` simulator runtime bundled with this Xcode. If you want to use a specific version of simulator runtime, proceed to `Xcode -> Preferences... -> Components -> Simulators` and install the runtime on all the worker machines, where you want the tests to execute with the specific runtime version.
 
 Emcee uses ssh to deploy itself to the machines specified as `queue` and `workers`. Enable SSH in your `System Preferences -> Sharing -> Remote Login`. To open this pane execute:
 
@@ -101,18 +101,12 @@ git clone https://github.com/avito-tech/Emcee.git
 cd Emcee/Samples/EmceeSample
 ```
 
-To build the project, create a simulator:
-
-```sh
-xcrun simctl create '15.0' 'iPhone X' 'iOS15.0'
-```
-
-Now run xcodebuild:
+And build sample project:
 
 ```sh
 xcodebuild build-for-testing \
 	-project EmceeSample.xcodeproj \
-	-destination "platform=iOS Simulator,name=15.0,OS=15.0" \
+	-destination "platform=iOS Simulator,name=16.4,OS=16.4" \
 	-scheme AllTests \
 	-derivedDataPath derivedData
 ```
@@ -130,13 +124,12 @@ derivedData/Build/Products/Debug-iphonesimulator
 Now that the machines are ready, and the project is built, download Emcee on the same machine where you built the project by running:
 
 ```sh
-curl -L https://github.com/avito-tech/Emcee/releases/download/16.0.0/Emcee -o Emcee && chmod +x Emcee
+curl -L https://github.com/avito-tech/Emcee/releases/download/18.0.0/Emcee.zip -o Emcee.zip && unzip Emcee.zip && rm Emcee.zip
 ```
-
-If you download Emcee using a browser you will need to clear attributes and set the executable bit:
+or
 
 ```sh
-xattr -c Emcee && chmod +x Emcee
+curl -L https://github.com/avito-tech/Emcee/releases/download/18.0.0/Emcee.tar.gz | tar -xz && xattr -c Emcee && chmod +x Emcee
 ```
 
 With Emcee installed it is finally time to run the tests. The sample project includes [3 test types](https://github.com/avito-tech/Emcee/wiki/Build-Artifacts-and-Test-Types):
@@ -154,8 +147,8 @@ Let's first run tests that don't require a host application. We will be using th
 	--queue "ssh://emcee:qwerty@ios-build-machine77" \
 	--worker "ssh://emcee:qwerty@ios-build-machine77" \
 	--worker "ssh://emcee:qwerty@ios-build-machine78" \
-	--device "iPhone X" \
-	--runtime "15.0" \
+	--device "iPhone 14" \
+	--runtime "16.4" \
 	--test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleTestsWithoutHost.xctest \
 	--junit tests_without_host_junit.xml
 ```
@@ -198,8 +191,8 @@ Now let's try running tests that require a host application. Host application pa
     --queue "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine78" \
-    --device "iPhone X" \
-    --runtime "15.0" \
+    --device "iPhone 14" \
+    --runtime "16.4" \
     --app derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app \
     --test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app/PlugIns/EmceeSampleHostedTests.xctest \
     --junit tests_with_host_junit.xml
@@ -220,8 +213,8 @@ Finally, we will run XCUI tests by adding a `--runner` option and changing the `
     --queue "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine78" \
-    --device "iPhone X" \
-    --runtime "15.0" \
+    --device "iPhone 14" \
+    --runtime "16.4" \
     --runner derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app \
     --app derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app \
     --test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app/PlugIns/EmceeSampleUITests.xctest \
