@@ -101,7 +101,13 @@ git clone https://github.com/avito-tech/Emcee.git
 cd Emcee/Samples/EmceeSample
 ```
 
-And build sample project:
+To build the project, create a simulator:
+
+```sh
+xcrun simctl create '16.4' 'iPhone 14' 'iOS16.4'
+```
+
+Now run xcodebuild:
 
 ```sh
 xcodebuild build-for-testing \
@@ -124,12 +130,7 @@ derivedData/Build/Products/Debug-iphonesimulator
 Now that the machines are ready, and the project is built, download Emcee on the same machine where you built the project by running:
 
 ```sh
-curl -L https://github.com/avito-tech/Emcee/releases/download/18.0.0/Emcee.zip -o Emcee.zip && unzip Emcee.zip && rm Emcee.zip
-```
-or
-
-```sh
-curl -L https://github.com/avito-tech/Emcee/releases/download/18.0.0/Emcee.tar.gz | tar -xz && xattr -c Emcee && chmod +x Emcee
+curl -L https://github.com/avito-tech/Emcee/releases/download/18.0.0/emceeFree.artifact.zip -o emceeFree.artifact.zip && unzip emceeFree.artifact.zip emceeFree
 ```
 
 With Emcee installed it is finally time to run the tests. The sample project includes [3 test types](https://github.com/avito-tech/Emcee/wiki/Build-Artifacts-and-Test-Types):
@@ -143,12 +144,12 @@ With Emcee installed it is finally time to run the tests. The sample project inc
 Let's first run tests that don't require a host application. We will be using the `runTests` command:
 
 ```sh
-./Emcee runTests \
+./emceeFree runTests \
 	--queue "ssh://emcee:qwerty@ios-build-machine77" \
 	--worker "ssh://emcee:qwerty@ios-build-machine77" \
 	--worker "ssh://emcee:qwerty@ios-build-machine78" \
-	--device "iPhone 14" \
-	--runtime "16.4" \
+	--device "com.apple.CoreSimulator.SimDeviceType.iPhone-14" \
+	--runtime "com.apple.CoreSimulator.SimRuntime.iOS-16-4" \
 	--test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleTestsWithoutHost.xctest \
 	--junit tests_without_host_junit.xml
 ```
@@ -187,12 +188,12 @@ For a more sophisticated test reporting mechanism such as Allure, check out the 
 Now let's try running tests that require a host application. Host application path is specified using the `--app` option. For example:
 
 ```sh
-./Emcee runTests \
+./emceeFree runTests \
     --queue "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine78" \
-    --device "iPhone 14" \
-    --runtime "16.4" \
+    --device "com.apple.CoreSimulator.SimDeviceType.iPhone-14" \
+    --runtime "com.apple.CoreSimulator.SimRuntime.iOS-16-4" \
     --app derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app \
     --test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app/PlugIns/EmceeSampleHostedTests.xctest \
     --junit tests_with_host_junit.xml
@@ -209,12 +210,12 @@ open "$(xcode-select -p)"/Applications/Simulator.app
 Finally, we will run XCUI tests by adding a `--runner` option and changing the `--test-bundle` option to the XCUI test bundle:
 
 ```sh
-./Emcee runTests \
+./emceeFree runTests \
     --queue "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine77" \
     --worker "ssh://emcee:qwerty@ios-build-machine78" \
-    --device "iPhone 14" \
-    --runtime "16.4" \
+    --device "com.apple.CoreSimulator.SimDeviceType.iPhone-14" \
+    --runtime "com.apple.CoreSimulator.SimRuntime.iOS-16-4" \
     --runner derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app \
     --app derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app \
     --test-bundle derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app/PlugIns/EmceeSampleUITests.xctest \
