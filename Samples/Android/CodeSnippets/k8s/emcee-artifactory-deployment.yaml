@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emcee-artifactory-deployment
+  labels:
+    app: emcee-app
+spec:
+  selector:
+    matchLabels:
+      component: emcee-artifactory
+  template:
+    metadata:
+      labels:
+        component: emcee-artifactory
+    spec:
+      containers:
+        - name: emcee-artifactory
+          image: docker.bintray.io/jfrog/artifactory-oss:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+            - containerPort: 8082
+          volumeMounts:
+            - mountPath: /var/opt/jfrog/artifactory
+              name: artifactory
+      volumes:
+        - name: artifactory
+          emptyDir: {}

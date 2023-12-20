@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: emcee-artifactory-service
+spec:
+  type: NodePort
+  selector:
+    component: emcee-artifactory
+  ports:
+    - name: emcee-artifactory-service-port-1
+      protocol: TCP
+      port: 8081
+      targetPort: 8081
+    - name: emcee-artifactory-service-port-2
+      protocol: TCP
+      port: 8082
+      targetPort: 8082

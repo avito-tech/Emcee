@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emcee-queue-deployment
+  labels:
+    app: emcee-app
+spec:
+  selector:
+    matchLabels:
+      component: emcee-queue
+  template:
+    metadata:
+      labels:
+        component: emcee-queue
+    spec:
+      containers:
+        - name: emcee-queue
+          image: avitotech/emcee-queue:20.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 41000

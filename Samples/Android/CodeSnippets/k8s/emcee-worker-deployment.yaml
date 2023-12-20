@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emcee-worker-deployment
+  labels:
+    app: emcee-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: emcee-worker
+  template:
+    metadata:
+      labels:
+        component: emcee-worker
+    spec:
+      containers:
+        - name: emcee-worker
+          image: avitotech/emcee-worker:20.0.0
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "1.15"
+            limits:
+              memory: "4.5Gi"
+              cpu: "1.3"
+          volumeMounts:
+            - mountPath: /dev/kvm
+              name: kvm
+          securityContext:
+            privileged: true
+          ports:
+            - containerPort: 41001
+          args: [ "$(EMCEE_WORKER_LOG_LEVEL)" ]
+          env:
+            - name: EMCEE_WORKER_QUEUE_URL
+              value: "http://emcee-queue-service:41000"
+            - name: EMCEE_WORKER_LOG_LEVEL
+              value: "info"
+      volumes:
+        - name: kvm
+          hostPath:
+            path: /dev/kvm
