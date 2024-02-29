@@ -43,6 +43,21 @@ to fiinsh its set of tests, while the most of destinations will be idle.
 }
 ```
 
+### Time weighted
+
+To address downsides of `equallyDivided` splitter strategy `timeWeighted` uses estimated tests time duration retrived from test history service.
+In order to make buckets more compact, set up test history service in queue and specify `timeWeighted` in test arg file. If test history hasn't
+been set up in queue or there are no sufficient data time-weighted splitter fallbacks to equally divided splitter.
+In large scale deployments you can prevent buckets granularity by specifying minimal bucket time (0 if not set).
+
+```json
+{
+    "scheduleStrategy": {
+            {"testSplitterType": {"type": "timeWeighted"}, "minBucketTime": 60}
+    }
+}
+```
+
 ### Progressive 
 
 A smarter technique that, in theory, combines the positive sides of each schedule strategy above and attempts to solve the problem when
