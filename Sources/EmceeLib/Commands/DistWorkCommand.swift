@@ -123,6 +123,7 @@ public final class DistWorkCommand: Command {
                     OperatingSystemCapabilitiesProvider(
                         operatingSystemVersionProvider: ProcessInfo.processInfo
                     ),
+                    WorkerArchitectureCapabilitiesProvider(logger: logger)
                 ]
             ),
             for: WorkerCapabilitiesProvider.self
