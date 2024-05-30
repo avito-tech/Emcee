@@ -1,0 +1,33 @@
+tests:
+  configurations:
+    - platform: ios
+      xcTestBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleTestsWithoutHost.xctest
+      device:
+        simDeviceType: iPhone-15
+        simRuntime: iOS-17-2
+    - platform: ios
+      xcTestBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app/PlugIns/EmceeSampleHostedTests.xctest
+      appBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app
+      device:
+        simDeviceType: iPhone-15
+        simRuntime: iOS-17-2
+    - platform: ios
+      xcTestBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app/PlugIns/EmceeSampleUITests.xctest
+      appBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSample.app
+      runnerBundle: derivedData/Build/Products/Debug-iphonesimulator/EmceeSampleUITests-Runner.app
+      device:
+        simDeviceType: iPhone-15
+        simRuntime: iOS-17-2
+  outputs:
+    - xcresult
+queue:
+  type: deploy
+  host: localhost
+  ssh:
+    username: _emcee
+    identity:
+      type: publicKey
+      keyPath: /Users/_emcee/.ssh/id_ed25519_avito
+  workers:
+    - id: w1
+      host: localhost
