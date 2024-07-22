@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "18B80944-C447-4B9B-9796-6EE99EFC1EC2",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:EmceeSample.xcodeproj",
+        "identifier" : "BC584C5B2753FD8000B8B9A6",
+        "name" : "EmceeSampleHostedTests"
+      }
+    }
+  ],
+  "version" : 1
+}

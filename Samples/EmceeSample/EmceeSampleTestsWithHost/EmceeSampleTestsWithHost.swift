@@ -18,5 +18,8 @@ class EmceeSampleTestsWithHost: XCTestCase {
     func test___from_tests_with_host___that_always_fails() {
         ViewController().raiseException()
     }
-
+    
+    func test___from_tests_with_host___skipped() throws {
+        throw XCTSkip("Skipping this test")
+    }
 }

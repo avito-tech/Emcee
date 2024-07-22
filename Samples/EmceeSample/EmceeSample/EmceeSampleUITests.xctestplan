@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "35E1C803-670A-408C-93D4-94A542C13B06",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "defaultTestExecutionTimeAllowance" : 1200,
+    "maximumTestExecutionTimeAllowance" : 2400,
+    "maximumTestRepetitions" : 23,
+    "testRepetitionMode" : "retryOnFailure",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:EmceeSample.xcodeproj",
+        "identifier" : "BC584C652753FD8000B8B9A6",
+        "name" : "EmceeSampleUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

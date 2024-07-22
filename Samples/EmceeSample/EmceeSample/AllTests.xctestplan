@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "5DF03AA0-AB94-4732-BE49-BC6E34C0E5AC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:EmceeSample.xcodeproj",
+        "identifier" : "BC584C5B2753FD8000B8B9A6",
+        "name" : "EmceeSampleHostedTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:EmceeSample.xcodeproj",
+        "identifier" : "BC06A71427664E620062F39A",
+        "name" : "EmceeSampleTestsWithoutHost"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:EmceeSample.xcodeproj",
+        "identifier" : "BC584C652753FD8000B8B9A6",
+        "name" : "EmceeSampleUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -38,4 +38,12 @@ class EmceeSampleUITests: XCTestCase {
         XCTFail("Failure from xcui tests")
     }
     
+    func test___skipped() throws {
+        let app = XCUIApplication()
+        app.launch()
+        
+        Thread.sleep(forTimeInterval: 2)
+        
+        throw XCTSkip("Skipping this test")
+    }
 }

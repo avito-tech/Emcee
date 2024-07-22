@@ -36,6 +36,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4F2DE1442C49695800966298 /* EmceeSampleHostedTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = EmceeSampleHostedTests.xctestplan; sourceTree = "<group>"; };
+		4F2DE1452C4969B400966298 /* EmceeSampleUITests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = EmceeSampleUITests.xctestplan; sourceTree = "<group>"; };
+		4F2DE1462C4969EE00966298 /* EmceeSampleTestsWithoutHost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = EmceeSampleTestsWithoutHost.xctestplan; sourceTree = "<group>"; };
+		4F2DE1472C4970FB00966298 /* AllTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = AllTests.xctestplan; sourceTree = "<group>"; };
 		BC06A71527664E620062F39A /* EmceeSampleTestsWithoutHost.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EmceeSampleTestsWithoutHost.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BC06A71727664E620062F39A /* EmceeSampleTestsWithoutHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmceeSampleTestsWithoutHost.swift; sourceTree = "<group>"; };
 		BC584C462753FD7E00B8B9A6 /* EmceeSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmceeSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,6 +121,10 @@
 		BC584C482753FD7E00B8B9A6 /* EmceeSample */ = {
 			isa = PBXGroup;
 			children = (
+				4F2DE1472C4970FB00966298 /* AllTests.xctestplan */,
+				4F2DE1442C49695800966298 /* EmceeSampleHostedTests.xctestplan */,
+				4F2DE1452C4969B400966298 /* EmceeSampleUITests.xctestplan */,
+				4F2DE1462C4969EE00966298 /* EmceeSampleTestsWithoutHost.xctestplan */,
 				BC584C492753FD7E00B8B9A6 /* AppDelegate.swift */,
 				BC584C4B2753FD7E00B8B9A6 /* SceneDelegate.swift */,
 				BC584C4D2753FD7E00B8B9A6 /* ViewController.swift */,
@@ -534,7 +542,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D9D392WLFZ;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EmceeSample/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -564,7 +572,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D9D392WLFZ;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EmceeSample/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
