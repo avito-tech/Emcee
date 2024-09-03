@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: emcee-worker
-          image: avitotech/emcee-worker:21.2.0
+          image: avitotech/emcee-worker:20.2.0
           imagePullPolicy: IfNotPresent
           resources:
             requests:
