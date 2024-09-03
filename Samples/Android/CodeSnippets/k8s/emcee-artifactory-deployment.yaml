@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: emcee-artifactory
-          image: docker.bintray.io/jfrog/artifactory-oss:latest
+          image: docker.bintray.io/jfrog/artifactory-oss:7.63.11
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
