@@ -1,13 +1,13 @@
 version: '3'
 services:
   emcee-queue-service:
-    image: avitotech/emcee-queue:21.2.1
+    image: avitotech/emcee-queue:latest
     container_name: emcee-queue-service
     ports:
       - 41000:41000
 
   queue-worker:
-    image: avitotech/emcee-worker:21.2.1
+    image: avitotech/emcee-worker:latest
     env_file:
       - emcee-worker.env
     depends_on:

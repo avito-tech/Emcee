@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: emcee-queue
-          image: avitotech/emcee-queue:21.2.1
+          image: avitotech/emcee-queue:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 41000
