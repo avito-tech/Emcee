@@ -5,9 +5,9 @@ on: [push]
 jobs:
   build:
 
-    runs-on: macOS-latest
+    runs-on: emcee-macos-14
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Build & Test
       run: ON_CI=1 make test
