@@ -694,7 +694,6 @@ let package = Package(
                 "TestDiscovery",
                 .product(name: "TestHelpers", package: "CommandLineToolkit"),
                 .product(name: "Tmp", package: "CommandLineToolkit"),
-                "URLResource",
                 "UniqueIdentifierGeneratorTestHelpers",
             ],
             path: "Tests/EmceeLibTests"
@@ -1541,7 +1540,6 @@ let package = Package(
                 "ResourceLocation",
                 .product(name: "SynchronousWaiter", package: "CommandLineToolkit"),
                 "TypedResourceLocation",
-                "URLResource",
             ],
             path: "Sources/ResourceLocationResolver"
         ),

@@ -7,7 +7,9 @@ import PathLib
 import ProcessController
 import ResourceLocation
 import SynchronousWaiter
-import URLResource
+
+import protocol URLResource.URLResource
+import class URLResource.BlockingURLResourceHandler
 
 public final class ResourceLocationResolverImpl: ResourceLocationResolver {
     private let fileSystem: FileSystem
@@ -65,7 +67,7 @@ public final class ResourceLocationResolverImpl: ResourceLocationResolver {
         let zipFilePath = try handler.wait(limit: 120, remoteUrl: url)
         
         let contentsPath = zipFilePath.removingLastComponent.appending("zip_contents")
-        try unarchiveQueue.sync {
+        try unarchiveQueue.sync { [processControllerProvider] in
             try urlResource.whileLocked {
                 if !fileSystem.properties(forFileAtPath: contentsPath).exists() {
                     let temporaryContentsPath = zipFilePath.removingLastComponent.appending(

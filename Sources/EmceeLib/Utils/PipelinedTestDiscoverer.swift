@@ -10,6 +10,8 @@ import TestArgFile
 import TestDiscovery
 import URLResource
 
+import protocol URLResource.URLResource
+
 public final class PipelinedTestDiscoverer {
     private let runtimeDumpRemoteCacheProvider: RuntimeDumpRemoteCacheProvider
     private let testDiscoveryQuerier: TestDiscoveryQuerier

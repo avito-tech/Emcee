@@ -10,8 +10,10 @@ import SimulatorPoolTestHelpers
 import TestArgFile
 import TestDiscovery
 import TestHelpers
-import URLResource
 import XCTest
+
+import protocol URLResource.URLResource
+import protocol URLResource.URLResourceHandler
 
 final class PipelinedTestDiscovererTests: XCTestCase {
     private lazy var urlResource = FakeURLResource()
