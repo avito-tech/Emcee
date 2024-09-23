@@ -5,6 +5,10 @@ import XCTest
 final class TestNameTests: XCTestCase {
     let value = ["value": TestName(className: "ClassName", methodName: "testMethod")]
     let encoder = JSONEncoder()
+
+    override func setUp() {
+        encoder.outputFormatting = .sortedKeys
+    }
     
     func test___decoding_from_string() throws {
         let result: [String: TestName] = try fromJson(
