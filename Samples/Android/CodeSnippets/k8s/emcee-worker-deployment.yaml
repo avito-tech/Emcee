@@ -20,10 +20,11 @@ spec:
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              cpu: "1.15"
-            limits:
+              cpu: "2"
               memory: "4.5Gi"
-              cpu: "1.3"
+            limits:
+              cpu: "2.2"
+              memory: "6Gi"
           volumeMounts:
             - mountPath: /dev/kvm
               name: kvm
