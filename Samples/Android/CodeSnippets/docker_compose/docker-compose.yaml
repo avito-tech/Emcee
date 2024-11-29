@@ -14,6 +14,10 @@ services:
       - emcee-queue-service
     deploy:
       replicas: 3
+      resources:
+        limits:
+          cpus: "2.2" # Here you can configure resources limits depends on features usage for each worker
+          memory: "6" # For example, screen recording is very cpu consumption or full hd screen with high api level require more cpu/memory
     devices:
       - "/dev/kvm:/dev/kvm"
 
