@@ -2260,10 +2260,12 @@ let package = Package(
             name: "WorkerCapabilities",
             dependencies: [
                 .product(name: "AtomicModels", package: "CommandLineToolkit"),
+                .product(name: "DateProvider", package: "CommandLineToolkit"),
                 "EmceeLogging",
                 .product(name: "FileSystem", package: "CommandLineToolkit"),
                 .product(name: "PathLib", package: "CommandLineToolkit"),
                 .product(name: "PlistLib", package: "CommandLineToolkit"),
+                .product(name: "ProcessController", package: "CommandLineToolkit"),
                 "QueueModels",
                 .product(name: "Types", package: "CommandLineToolkit"),
                 "WorkerCapabilitiesModels",
